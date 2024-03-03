@@ -13,7 +13,6 @@ import { useRouter } from 'next/navigation';
 const LoginPage = () => {
 
     const router = useRouter()
-    const changeState = useOrgStore(state => state.changeOrg)
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
         defaultValues: {
@@ -23,10 +22,13 @@ const LoginPage = () => {
     });
 
     const getOrgs = (final: z.infer<typeof loginResponseSchema>) => {
-        if (final.Organizations.length === 1) {
-            console.log("changing state to single ID")
-            changeState({ orgID: final.Organizations[0].Organization.ID, orgName: final.Organizations[0].Organization.Name })
-            router.push("/")
+        // if (final.Organizations.length === 1) {
+        //     console.log("changing state to single ID")
+        //     changeState({ orgID: final.Organizations[0].Organization.ID, orgName: final.Organizations[0].Organization.Name })
+        //     router.push("/")
+        // }
+        if (final.Organizations.length > 0) {
+            router.push("/org/select")
         }
     }
 

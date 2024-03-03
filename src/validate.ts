@@ -39,3 +39,25 @@ export const loginResponseSchema = z.object({
     })
   ),
 });
+
+export const orgResponseSchema = z.array(
+  z.object({
+    CreatedAt: z.string(),
+    UpdatedAt: z.string(),
+    DeletedAt: z.nullable(z.string()),
+    ID: z.string(),
+    UserId: z.string(),
+    User: z.nullable(z.unknown()),
+    OrganizationId: z.string(),
+    Organization: z.object({
+      CreatedAt: z.string(),
+      UpdatedAt: z.string(),
+      DeletedAt: z.nullable(z.string()),
+      ID: z.string(),
+      Name: z.string(),
+      Projects: z.nullable(z.unknown()),
+      Users: z.nullable(z.unknown()),
+    }),
+    Role: z.string(),
+  })
+);
