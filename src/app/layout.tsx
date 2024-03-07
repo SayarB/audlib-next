@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { useEffect, useState } from "react";
 import { env } from "@/env/schema";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Navbar from "@/components/composite/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter()
-
+  const pathname = usePathname()
   const checkAuth = async () => {
     console.log("checking auth")
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/check`, {
@@ -43,14 +43,16 @@ export default function RootLayout({
 
   useEffect(() => {
     checkAuth()
-  }, [])
+  }, [pathname])
 
+  const noNavbarPath = ["/login", "/org/select"]
+  const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
 
   return (
     <html lang="en">
       <body className={inter.className}>
         <div className="min-w-[100vw] flex">
-          <Navbar />
+          {isNavbarRoute && < Navbar />}
           {children}
         </div>
       </body>

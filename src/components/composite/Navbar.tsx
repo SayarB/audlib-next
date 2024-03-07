@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { cn } from "@/lib/utils"
 import { Button } from '../ui/button'
@@ -7,6 +7,7 @@ import { AvatarImage } from '@radix-ui/react-avatar'
 import Combobox from './Combobox'
 import { orgResponseSchema } from '@/validate'
 import { usePathname } from 'next/navigation'
+import { useCurrentOrg } from '@/hooks/useOrg'
 
 
 const NavList = [
@@ -57,7 +58,7 @@ const NavList = [
 
 const Navbar = () => {
     const [orgs, setOrgs] = React.useState<{ ID: string, Name: string }[]>([])
-    const [currentOrg, setCurrentOrg] = React.useState("")
+    const { currentOrg, revalidate } = useCurrentOrg()
 
     const pathname = usePathname()
     const isCurrent = (prefix: string) => prefix === "home" && pathname === "/" || pathname.startsWith(`/${prefix}`)
@@ -66,32 +67,23 @@ const Navbar = () => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs`, {
             credentials: "include",
         })
+        if (!res.ok) return
         const json = await res.json()
         const orgsArray = orgResponseSchema.parse(json).map((org) => ({ ID: org.Organization.ID, Name: org.Organization.Name }))
         setOrgs(orgsArray)
         console.log(json)
     }
 
-    const getCurrentOrg = async () => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/current`, {
-            credentials: "include",
-        })
-        const json = await res.json()
-        console.log("current org = ", json)
-        setCurrentOrg(json.ID)
-    }
-
-    React.useEffect(() => {
+    useEffect(() => {
         getOrgs()
-        getCurrentOrg()
-    }, [])
+        revalidate()
+    }, [pathname, revalidate])
 
     return (
         <div className={cn("h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary")}>
             <div className="space-y-4 py-4" >
                 <div className="px-3 py-2">
-
-                    <Combobox current={currentOrg} values={orgs} isFetching={false} />
+                    <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />
 
                     <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 rounded-md'>
                         <div className='mr-2'>

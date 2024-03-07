@@ -61,3 +61,27 @@ export const orgResponseSchema = z.array(
     Role: z.string(),
   })
 );
+
+export const projectResponseSchema = z.array(
+  z.object({
+    CreatedAt: z.string(),
+    UpdatedAt: z.string(),
+    DeletedAt: z.nullable(z.string()),
+    ID: z.string(),
+    Name: z.string(),
+    OwnerId: z.string(),
+    Owner: z.nullable(z.unknown()),
+    AudioFiles: z.nullable(z.unknown()),
+  })
+);
+
+export const currentOrgResponseSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  Name: z.string(),
+  Projects: z.nullable(z.unknown()),
+  Users: z.nullable(z.unknown()),
+  Sessions: z.nullable(z.unknown()),
+});
