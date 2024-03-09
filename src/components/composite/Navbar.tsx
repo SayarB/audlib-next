@@ -58,12 +58,13 @@ const NavList = [
 
 const Navbar = () => {
     const [orgs, setOrgs] = React.useState<{ ID: string, Name: string }[]>([])
-    const { currentOrg, revalidate } = useCurrentOrg()
-
+    const { currentOrg, revalidate, loading } = useCurrentOrg()
+    const [loadingOrgs, setLoadingOrgs] = React.useState(true)
     const pathname = usePathname()
     const isCurrent = (prefix: string) => prefix === "home" && pathname === "/" || pathname.startsWith(`/${prefix}`)
 
     const getOrgs = async () => {
+        setLoadingOrgs(true)
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs`, {
             credentials: "include",
         })
@@ -72,18 +73,19 @@ const Navbar = () => {
         const orgsArray = orgResponseSchema.parse(json).map((org) => ({ ID: org.Organization.ID, Name: org.Organization.Name }))
         setOrgs(orgsArray)
         console.log(json)
+        setLoadingOrgs(false)
     }
 
     useEffect(() => {
         getOrgs()
         revalidate()
-    }, [pathname, revalidate])
+    }, [revalidate])
 
     return (
         <div className={cn("h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary")}>
             <div className="space-y-4 py-4" >
                 <div className="px-3 py-2">
-                    <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />
+                    {loading || loadingOrgs ? "Loading" : <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />}
 
                     <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 rounded-md'>
                         <div className='mr-2'>

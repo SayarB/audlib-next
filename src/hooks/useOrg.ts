@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 
 export const useCurrentOrg = () => {
+  const [loading, setLoading] = useState(true);
   const [currentOrg, setCurrentOrg] = useState<z.infer<
     typeof currentOrgResponseSchema
   > | null>(null);
@@ -12,6 +13,7 @@ export const useCurrentOrg = () => {
   }, [setCurrentOrg]);
 
   const getCurrentOrg = async () => {
+    setLoading(true);
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/current`, {
       credentials: "include",
     });
@@ -20,11 +22,12 @@ export const useCurrentOrg = () => {
     if (!json) return;
     console.log("current org = ", json);
     setCurrentOrg(json);
+    setLoading(false);
   };
 
   useEffect(() => {
     getCurrentOrg();
   }, [setCurrentOrg]);
 
-  return { currentOrg, revalidate };
+  return { currentOrg, revalidate, loading };
 };
