@@ -71,9 +71,63 @@ export const projectResponseSchema = z.array(
     Name: z.string(),
     OwnerId: z.string(),
     Owner: z.nullable(z.unknown()),
-    AudioFiles: z.nullable(z.unknown()),
+    Versions: z.nullable(
+      z.object({
+        CreatedAt: z.string(),
+        UpdatedAt: z.string(),
+        DeletedAt: z.nullable(z.string()),
+        ID: z.string(),
+        Title: z.string(),
+        AudioFileId: z.string(),
+        ProjectId: z.string(),
+        Project: z.nullable(z.unknown()),
+        IsPublished: z.boolean(),
+        AuthorId: z.string(),
+        Author: z.nullable(z.unknown()),
+      })
+    ),
+    LatestVersion: z.nullable(
+      z.object({
+        CreatedAt: z.string(),
+        UpdatedAt: z.string(),
+        DeletedAt: z.nullable(z.string()),
+        ID: z.string(),
+        Title: z.string(),
+        AudioFileId: z.string(),
+        ProjectId: z.string(),
+        Project: z.nullable(z.unknown()),
+        IsPublished: z.boolean(),
+        AuthorId: z.string(),
+        Author: z.nullable(z.unknown()),
+      })
+    ),
   })
 );
+
+export const projectByIdResponseSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  Name: z.string(),
+  OwnerId: z.string(),
+  Owner: z.nullable(z.unknown()),
+  Versions: z.array(
+    z.object({
+      CreatedAt: z.string(),
+      UpdatedAt: z.string(),
+      DeletedAt: z.nullable(z.string()),
+      ID: z.string(),
+      Title: z.string(),
+      AudioFileId: z.string(),
+      ProjectId: z.string(),
+      Project: z.nullable(z.unknown()),
+      IsPublished: z.boolean(),
+      AuthorId: z.string(),
+      Author: z.nullable(z.unknown()),
+    })
+  ),
+});
 
 export const currentOrgResponseSchema = z.object({
   CreatedAt: z.string(),

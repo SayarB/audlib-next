@@ -1,4 +1,5 @@
 "use client"
+import ProjectCard from '@/components/composite/ProjectCard'
 import { env } from '@/env/schema'
 import { projectResponseSchema } from '@/validate'
 import React, { useEffect, useState } from 'react'
@@ -28,16 +29,20 @@ const ProjectsPage = (props: Props) => {
     }, [])
 
     return (
-        <div>
-            <ul>
+        <div className='p-10'>
+            <h1 className='font-bold mb-2'>Projects</h1>
+            <div className='flex'>
                 {
                     projects.map(project => {
-                        return <li key={project.ID}>
-                            {project.Name}
-                        </li>
+                        return <ProjectCard
+                            id={project.ID}
+                            title={project.Name}
+                            description={project.LatestVersion?.Title || "No Published Version"}
+                            content={"Content"}
+                            footer={"Footer"} />
                     })
                 }
-            </ul>
+            </div>
         </div>
     )
 }
