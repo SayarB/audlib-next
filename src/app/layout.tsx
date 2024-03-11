@@ -53,7 +53,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <div className="min-w-[100vw] flex">
           {isNavbarRoute && < Navbar />}
-          {children}
+
+          <div className="flex justify-center w-full">
+            <div className="md:w-[80%] p-10">
+              {children}
+            </div>
+          </div>
         </div>
       </body>
     </html>

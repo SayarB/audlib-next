@@ -124,7 +124,17 @@ export const projectByIdResponseSchema = z.object({
       Project: z.nullable(z.unknown()),
       IsPublished: z.boolean(),
       AuthorId: z.string(),
-      Author: z.nullable(z.unknown()),
+      Author: z.object({
+        CreatedAt: z.string(),
+        UpdatedAt: z.string(),
+        DeletedAt: z.nullable(z.string()),
+        ID: z.string(),
+        Name: z.string(),
+        Email: z.string(),
+        Password: z.string(),
+        Sessions: z.nullable(z.unknown()),
+        Organizations: z.nullable(z.unknown()),
+      }),
     })
   ),
 });
@@ -138,4 +148,8 @@ export const currentOrgResponseSchema = z.object({
   Projects: z.nullable(z.unknown()),
   Users: z.nullable(z.unknown()),
   Sessions: z.nullable(z.unknown()),
+});
+
+export const createProjectSchema = z.object({
+  name: z.string(),
 });
