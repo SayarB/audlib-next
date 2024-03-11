@@ -22,6 +22,7 @@ const ProjectByID = (props: Props) => {
 
     const [project, setProject] = React.useState<z.infer<typeof projectByIdResponseSchema> | null>(null)
 
+    const isLoading = !project
     async function getProject() {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}`, {
             credentials: "include",
@@ -41,29 +42,34 @@ const ProjectByID = (props: Props) => {
         <div>
             <h1 className='text-xl font-bold mb-2'>{project?.Name}</h1>
             {
-                project ?
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Version No</TableHead>
-                                <TableHead>Version</TableHead>
-                                <TableHead>Author</TableHead>
-                                <TableHead>Play</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {project.Versions.map((version, i) =>
-                                <TableRow key={version.ID}>
-                                    <TableCell>{i + 1}</TableCell>
-                                    <TableCell>{version.Title}</TableCell>
-                                    <TableCell>{version.Author.Name}</TableCell>
-                                    <TableCell>
-                                        <PlayButton />
-                                    </TableCell>
+
+                isLoading ? "Loading" : project.Versions.length > 0 ?
+                    <>
+                        <h1 className='font-bold'>Audio Versions</h1>
+
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Version No</TableHead>
+                                    <TableHead>Version</TableHead>
+                                    <TableHead>Author</TableHead>
+                                    <TableHead>Play</TableHead>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table> : "Loading"
+                            </TableHeader>
+                            <TableBody>
+                                {project.Versions.map((version, i) =>
+                                    <TableRow key={version.ID}>
+                                        <TableCell>{i + 1}</TableCell>
+                                        <TableCell>{version.Title}</TableCell>
+                                        <TableCell>{version.Author.Name}</TableCell>
+                                        <TableCell>
+                                            <PlayButton />
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </> : "No Versions"
             }</div >
     )
 }
