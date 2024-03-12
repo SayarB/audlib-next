@@ -1,14 +1,11 @@
 "use client"
-import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { env } from '@/env/schema'
-import { LoadingSvg } from '@/components/icons/Loading'
 import { projectByIdResponseSchema } from '@/validate'
 import React, { useEffect } from 'react'
 import { z } from 'zod'
 import { usePlayback } from '@/hooks/usePlayback'
-import { PlaySvg } from '@/components/icons/Play'
-import { PauseSvg } from '@/components/icons/Pause'
+import { PauseButton, PlayButton } from '@/components/composite/Controls'
 
 type Props = {
     params: {
@@ -16,18 +13,6 @@ type Props = {
     }
 }
 
-const PlayButton = ({ onClick, loading }: { onClick: React.MouseEventHandler, loading: boolean }) => {
-    return <Button onClick={onClick}>
-        {loading ? LoadingSvg : PlaySvg
-        }
-    </Button >
-}
-
-const PauseButton = ({ onClick, loading }: { onClick: React.MouseEventHandler, loading: boolean }) => {
-    return <Button onClick={onClick}>
-        {loading ? LoadingSvg : PauseSvg}
-    </Button >
-}
 
 
 const ProjectByID = (props: Props) => {

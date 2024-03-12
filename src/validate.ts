@@ -150,6 +150,29 @@ export const currentOrgResponseSchema = z.object({
   Sessions: z.nullable(z.unknown()),
 });
 
+export const versionResponseSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  Title: z.string(),
+  AudioFileId: z.string(),
+  ProjectId: z.string(),
+  Project: z.object({
+    CreatedAt: z.string(),
+    UpdatedAt: z.string(),
+    DeletedAt: z.nullable(z.string()),
+    ID: z.string(),
+    Name: z.string(),
+    OwnerId: z.string(),
+    Owner: z.nullable(z.unknown()),
+    Versions: z.nullable(z.unknown()),
+  }),
+  IsPublished: z.boolean(),
+  AuthorId: z.string(),
+  Author: z.nullable(z.unknown()),
+});
+
 export const createProjectSchema = z.object({
   name: z.string(),
 });

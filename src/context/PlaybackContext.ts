@@ -5,6 +5,7 @@ export type PlaybackContextType = {
   audioRef: React.MutableRefObject<HTMLAudioElement | null> | null;
   play: () => void;
   pause: () => void;
+  reset: () => void;
   setupStream: () => void;
   fetchStreamToken: () => Promise<void>;
   idPlaying: string;
@@ -20,6 +21,9 @@ export const PlaybackContext = createContext<PlaybackContextType>({
     throw new Error("not yet initialized");
   },
   pause: () => {
+    throw new Error("not yet initialized");
+  },
+  reset: () => {
     throw new Error("not yet initialized");
   },
   fetchStreamToken: async () => {

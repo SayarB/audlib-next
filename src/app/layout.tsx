@@ -98,6 +98,7 @@ export default function RootLayout({
   }, [])
 
   const pause = useCallback(() => {
+    console.log("pausing")
     ref.current?.pause()
     setPlaybackPlaying(false)
   }, [])
@@ -124,7 +125,7 @@ export default function RootLayout({
   }, [idPlaying, streamToken])
 
   const state = {
-    audioRef: ref, play, pause, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream
+    audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream
   }
 
   return (
