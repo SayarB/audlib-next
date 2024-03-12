@@ -38,36 +38,29 @@ const Playback: React.FC = () => {
     }, [idPlaying])
 
 
+    const timeUpdate = (e: Event) => {
+        const time = audioRef?.current?.currentTime
+        const duration = audioRef?.current?.duration
+        if (time && duration) {
+            setProgressBar(time * 100 / duration)
+        }
+
+    }
+
+    const ended = (e: Event) => {
+        reset()
+        play()
+        console.log("ended")
+    }
 
     useEffect(() => {
-        audioRef?.current?.addEventListener('timeupdate', () => {
-            const time = audioRef?.current?.currentTime
-            const duration = audioRef?.current?.duration
-            if (time && duration) {
-                setProgressBar(time * 100 / duration)
-            }
-
-        })
-        audioRef?.current?.addEventListener('ended', () => {
-            reset()
-            play()
-            console.log("ended")
-        })
+        console.log("use effect")
+        audioRef?.current?.addEventListener('timeupdate', timeUpdate)
+        audioRef?.current?.addEventListener('ended', ended)
 
         return () => {
-            audioRef?.current?.removeEventListener('timeupdate', () => {
-                const time = audioRef?.current?.currentTime
-                const duration = audioRef?.current?.duration
-                if (time && duration) {
-                    setProgressBar(time * 100 / duration)
-                }
-
-            })
-            audioRef?.current?.removeEventListener('ended', () => {
-                reset()
-                play()
-                console.log("ended")
-            })
+            audioRef?.current?.removeEventListener('timeupdate', timeUpdate)
+            audioRef?.current?.removeEventListener('ended', ended)
         }
     }, [])
 
