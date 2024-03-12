@@ -8,7 +8,7 @@ import { z } from 'zod'
 
 type Props = {}
 
-const page = (props: Props) => {
+const OrgSelectPage = (props: Props) => {
 
     const router = useRouter()
     const [orgs, setOrgs] = useState<z.infer<typeof orgResponseSchema>>([])
@@ -54,4 +54,4 @@ const page = (props: Props) => {
     )
 }
 
-export default page
+export default OrgSelectPage

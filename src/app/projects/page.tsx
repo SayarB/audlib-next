@@ -113,6 +113,7 @@ const ProjectsPage = (props: Props) => {
                 {
                     projects.map(project => {
                         return <ProjectCard
+                            key={project.ID}
                             id={project.ID}
                             title={project.Name}
                             description={project.LatestVersion?.Title || "No Published Version"}
