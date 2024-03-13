@@ -50,14 +50,6 @@ const Playback: React.FC = () => {
         }, 10)
     }
 
-    const onValueChangeWithoutDebounce = (v: number[]) => {
-
-        if (audioRef?.current) {
-            audioRef.current.currentTime = v[0] * audioRef.current.duration / 100
-        }
-
-    }
-
     const timeUpdate = (e: Event) => {
         const time = audioRef?.current?.currentTime
         const duration = audioRef?.current?.duration
@@ -109,7 +101,7 @@ const Playback: React.FC = () => {
                         }} />
                 }
 
-                {<Slider className='mx-2' max={100} step={1} value={[progressBar]} onValueCommit={onValueChangeWithoutDebounce} />}
+                {<Slider className='mx-2' max={100} step={0.1} value={[progressBar]} onValueChange={onValueChangeWithDebounce} />}
             </div>
         </div>
     );
