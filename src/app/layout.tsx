@@ -136,7 +136,7 @@ export default function RootLayout({
             {isNavbarRoute && < Navbar />}
 
             <div className="flex justify-center w-full">
-              <div className="md:w-[80%] p-10">
+              <div className="w-[100%] lg:w-[80%] p-10">
                 {children}
               </div>
             </div>

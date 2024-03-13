@@ -109,7 +109,7 @@ const ProjectsPage = (props: Props) => {
                 <h1 className='font-bold '>Projects</h1>
                 <Button variant='default' onClick={onCreateProjectClick}>Create Project</Button>
             </div>
-            <div className='grid grid-cols-3 gap-4'>
+            <div className='grid grid-cols-2 xl:grid-cols-3 gap-4'>
                 {
                     projects.map(project => {
                         return <ProjectCard

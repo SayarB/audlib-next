@@ -15,7 +15,7 @@ const ProjectCard = ({ id, title, description }: Props) => {
     console.log(id)
     return (
         <Link href={`/projects/${id}`}>
-            <Card className='w-[300px] m-2 hover:bg-gray-100 cursor-pointer'>
+            <Card className='w-[200px] h-full md:w-[250px] xl:w-[300px] m-2 hover:bg-gray-100 cursor-pointer'>
                 <CardHeader>
                     <CardTitle>{title}</CardTitle>
                     <CardDescription>{description}</CardDescription>

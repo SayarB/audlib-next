@@ -8,6 +8,7 @@ import Combobox from './Combobox'
 import { orgResponseSchema } from '@/validate'
 import { usePathname } from 'next/navigation'
 import { useCurrentOrg } from '@/hooks/useOrg'
+import { useWindowSize } from '@/hooks/useWindowSize'
 
 
 const NavList = [
@@ -57,7 +58,10 @@ const NavList = [
 
 
 const Navbar = () => {
+    const { width, height } = useWindowSize()
+    const isLargeScreenSize = (width ?? 0) > 1000
     const [orgs, setOrgs] = React.useState<{ ID: string, Name: string }[]>([])
+    const [open, setOpen] = React.useState()
     const { currentOrg, revalidate, loading } = useCurrentOrg()
     const [loadingOrgs, setLoadingOrgs] = React.useState(true)
     const pathname = usePathname()
@@ -82,7 +86,7 @@ const Navbar = () => {
     }, [revalidate])
 
     return (
-        <div className={cn("h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary")}>
+        <div className={cn(`h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary ${!open && !isLargeScreenSize ? "hidden" : ""}`)}>
             <div className="space-y-4 py-4" >
                 <div className="px-3 py-2">
                     {loading || loadingOrgs ? "Loading" : <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />}

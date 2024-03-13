@@ -84,7 +84,7 @@ const Playback: React.FC = () => {
     }, [idPlaying])
 
     return (
-        <div className='fixed bottom-0 h-[100px] w-[100vw] md:w-[500px] md:left-[50vw] bg-white z-20 border border-1  py-2 px-10 transition-all' style={{
+        <div className='fixed bottom-0 h-[100px] w-[100vw] md:w-[500px] left-[50vw] bg-white z-20 border border-1  py-2 px-10 transition-all' style={{
             translate: `-50% ${!idPlaying || metadataLoading ? "100%" : "0"}`,
         }}>
 
