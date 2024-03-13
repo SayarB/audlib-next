@@ -64,7 +64,7 @@ const Playback: React.FC = () => {
         if (time && duration) {
             setProgressBar(time * 100 / duration)
         }
-        console.log("time update", time, duration)
+        // console.log("time update", time, duration)
 
     }
 
