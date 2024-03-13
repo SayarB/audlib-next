@@ -89,7 +89,7 @@ const Playback: React.FC = () => {
         }}>
 
             <h1 className='text-lg font-bold text-center mb-2'>{metadata?.Project.Name} - {metadata?.Title}</h1>
-            <div className='flex justify-center items-center'>
+            <div className='flex items-center'>
                 {
                     !playbackPlaying ? <PlayButton onClick={(e) => {
                         play()

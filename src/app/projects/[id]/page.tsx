@@ -47,20 +47,15 @@ const ProjectByID = (props: Props) => {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Version No</TableHead>
+                                    <TableHead></TableHead>
                                     <TableHead>Version</TableHead>
                                     <TableHead>Author</TableHead>
                                     <TableHead>State</TableHead>
-                                    <TableHead>Play</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {project.Versions.map((version, i) =>
                                     <TableRow key={version.ID}>
-                                        <TableCell>{i + 1}</TableCell>
-                                        <TableCell>{version.Title}</TableCell>
-                                        <TableCell>{version.Author.Name}</TableCell>
-                                        <TableCell>{version.IsPublished ? "Published" : "Not Published"}</TableCell>
                                         <TableCell>
                                             {!playbackPlaying || idPlaying !== version.ID ? <PlayButton loading={playbackLoading} onClick={(e) => {
                                                 startStream(version.ID)
@@ -68,6 +63,9 @@ const ProjectByID = (props: Props) => {
                                                 pause()
                                             }} />}
                                         </TableCell>
+                                        <TableCell>{version.Title}</TableCell>
+                                        <TableCell>{version.Author.Name}</TableCell>
+                                        <TableCell>{version.IsPublished ? "Published" : "Not Published"}</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
