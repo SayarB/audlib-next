@@ -36,6 +36,14 @@ const Playback: React.FC = () => {
         if (idPlaying) {
             fetchVersion()
         }
+        console.log("use effect")
+        audioRef?.current?.addEventListener('timeupdate', timeUpdate)
+        audioRef?.current?.addEventListener('ended', ended)
+
+        return () => {
+            audioRef?.current?.removeEventListener('timeupdate', timeUpdate)
+            audioRef?.current?.removeEventListener('ended', ended)
+        }
     }, [idPlaying])
 
     const onValueChangeWithDebounce = (v: number[]) => {
@@ -66,16 +74,7 @@ const Playback: React.FC = () => {
         console.log("ended")
     }
 
-    useEffect(() => {
-        console.log("use effect")
-        audioRef?.current?.addEventListener('timeupdate', timeUpdate)
-        audioRef?.current?.addEventListener('ended', ended)
 
-        return () => {
-            audioRef?.current?.removeEventListener('timeupdate', timeUpdate)
-            audioRef?.current?.removeEventListener('ended', ended)
-        }
-    }, [])
 
 
     useEffect(() => {
