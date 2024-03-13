@@ -20,6 +20,7 @@ const Playback: React.FC = () => {
     const [progressBar, setProgressBar] = useState(0)
     const [metadata, setMetadata] = useState<z.infer<typeof versionResponseSchema> | null>(null)
     const [metadataLoading, setMetadataLoading] = useState(false)
+    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
     const fetchVersion = async () => {
         setMetadataLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${idPlaying}`, {
@@ -37,6 +38,25 @@ const Playback: React.FC = () => {
         }
     }, [idPlaying])
 
+    const onValueChangeWithDebounce = (v: number[]) => {
+        setProgressBar(v[0])
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current)
+        }
+        timeoutRef.current = setTimeout(() => {
+            if (audioRef?.current) {
+                audioRef.current.currentTime = v[0] * audioRef.current.duration / 100
+            }
+        }, 10)
+    }
+
+    const onValueChangeWithoutDebounce = (v: number[]) => {
+
+        if (audioRef?.current) {
+            audioRef.current.currentTime = v[0] * audioRef.current.duration / 100
+        }
+
+    }
 
     const timeUpdate = (e: Event) => {
         const time = audioRef?.current?.currentTime
@@ -44,6 +64,7 @@ const Playback: React.FC = () => {
         if (time && duration) {
             setProgressBar(time * 100 / duration)
         }
+        console.log("time update", time, duration)
 
     }
 
@@ -88,11 +109,7 @@ const Playback: React.FC = () => {
                         }} />
                 }
 
-                {<Slider className='mx-2' max={100} step={1} value={[progressBar]} onValueChange={(v) => {
-                    if (audioRef?.current) {
-                        audioRef.current.currentTime = v[0] * audioRef.current.duration / 100
-                    }
-                }} />}
+                {<Slider className='mx-2' max={100} step={1} value={[progressBar]} onValueCommit={onValueChangeWithoutDebounce} />}
             </div>
         </div>
     );
