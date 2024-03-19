@@ -38,7 +38,7 @@ const OrgSelectPage = (props: Props) => {
     }
 
     return (
-        <div className='min-h-[100vh] w-[100vw] flex items-center justify-center'>
+        <div className='min-h-[100%] w-[100%] flex items-center justify-center'>
             <ul className=' w-[100%] max-w-[500px] p-5 border border-input'>
                 <h1 className='text-xl text-center mb-2'>Your Organizations</h1>
                 {

@@ -176,3 +176,62 @@ export const versionResponseSchema = z.object({
 export const createProjectSchema = z.object({
   name: z.string(),
 });
+
+export const createVersionSchema = z.object({
+  title: z.string(),
+  audioFileId: z.string(),
+});
+
+export const postAudioFileSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  BucketId: z.string(),
+  Folder: z.string(),
+  Key: z.string(),
+  Extension: z.string(),
+  File: z.unknown(),
+  Size: z.number(),
+  MIMEType: z.string(),
+  AuthorId: z.string(),
+  Author: z.nullable(z.unknown()),
+  Version: z.nullable(z.unknown()),
+});
+
+export const versionByIdResponseSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  Title: z.string(),
+  AudioFileId: z.string(),
+  ProjectId: z.string(),
+  Project: z.object({
+    CreatedAt: z.string(),
+    UpdatedAt: z.string(),
+    DeletedAt: z.nullable(z.string()),
+    ID: z.string(),
+    Name: z.string(),
+    OwnerId: z.string(),
+    Owner: z.nullable(z.unknown()),
+    Versions: z.nullable(z.unknown()),
+  }),
+  IsPublished: z.boolean(),
+  AuthorId: z.string(),
+  Author: z.nullable(
+    z.object({
+      CreatedAt: z.string(),
+      UpdatedAt: z.string(),
+      DeletedAt: z.nullable(z.string()),
+      ID: z.string(),
+      Name: z.string(),
+      Email: z.string(),
+      Password: z.string(),
+      Sessions: z.nullable(z.unknown()),
+      Organizations: z.nullable(z.unknown()),
+      AudioFiles: z.nullable(z.unknown()),
+      Versions: z.nullable(z.unknown()),
+    })
+  ),
+});

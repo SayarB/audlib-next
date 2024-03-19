@@ -26,8 +26,8 @@ export default function RootLayout({
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/check`, {
       credentials: 'include',
     })
-    if (res.status !== 200) {
-      router.push("/login")
+    if (res.status === 401) {
+      return router.push("/login")
     } else {
       await checkOrg()
     }
@@ -133,10 +133,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <PlaybackProvider value={state}>
           <div className="min-w-[100vw] flex">
-            {isNavbarRoute && < Navbar />}
+            {isNavbarRoute && <Navbar />}
 
             <div className="flex justify-center w-full">
-              <div className="w-[100%] lg:w-[80%] p-10">
+              <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
                 {children}
               </div>
             </div>

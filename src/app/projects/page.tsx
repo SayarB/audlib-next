@@ -1,30 +1,42 @@
 "use client"
 import ProjectCard from '@/components/composite/ProjectCard'
+import { LoadingSvg } from '@/components/icons/Loading'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { env } from '@/env/schema'
 import { createProjectSchema, projectResponseSchema } from '@/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { set, z } from 'zod'
 
 type Props = {}
+
+const confirmDeleteSchema = z.object({ name: z.string() })
 
 const ProjectsPage = (props: Props) => {
 
     const [projects, setProjects] = useState<z.infer<typeof projectResponseSchema>>([])
     const [createProjectOpen, setCreateProjectOpen] = useState(false)
     const [createProjectLoading, setCreateProjectLoading] = useState(false)
+    const [deleteProjectId, setDeleteProjectId] = useState({ id: "", name: "" })
+    const [deleteProjectLoading, setDeleteProjectLoading] = useState(false)
     const router = useRouter()
 
     const form = useForm<z.infer<typeof createProjectSchema>>({
         resolver: zodResolver(createProjectSchema),
         defaultValues: {
             name: ""
+        }
+    })
+
+    const confirmDeleteForm = useForm<z.infer<typeof confirmDeleteSchema>>({
+        resolver: zodResolver(confirmDeleteSchema),
+        defaultValues: {
+            name: "",
         }
     })
 
@@ -64,19 +76,65 @@ const ProjectsPage = (props: Props) => {
         router.push(`/projects/${json.ID}`)
     }
 
+    const onConfirmDelete = async (data: z.infer<typeof confirmDeleteSchema>) => {
+        setDeleteProjectLoading(true)
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${deleteProjectId.id}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+        if (res.status !== 200) {
+            console.log("Could not delete project")
+            return
+        }
+        setDeleteProjectLoading(false)
+        setDeleteProjectId({ id: "", name: "" })
+        confirmDeleteForm.reset()
+        getProjects()
+    }
+
+    const onDeleteProject = useCallback((projId: string, projName: string) => {
+        setDeleteProjectId({ id: projId, name: projName })
+    }, [])
 
     useEffect(() => {
         console.log("projects page")
         getProjects()
     }, [])
 
-    const loadingSvg = <svg aria-hidden="true" className="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-    </svg>
 
     return (
         <div>
+            {
+                deleteProjectId.id !== "" && <div onClick={() => {
+                    setDeleteProjectId({ id: "", name: "" })
+                }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center'>
+                    <Card onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                    }} className='p-10'>
+                        <CardTitle className='mb-2'>
+                            Delete Project
+                        </CardTitle>
+                        <CardDescription className='mb-5'>
+                            Type the name of the project to confirm deletion - {deleteProjectId.name}
+                        </CardDescription>
+                        <CardContent>
+                            <Form {...confirmDeleteForm}>
+                                <form onSubmit={confirmDeleteForm.handleSubmit(onConfirmDelete)}>
+                                    <FormField
+                                        control={confirmDeleteForm.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <Input placeholder="Project Name" className='min-w-[300px]' {...field} />
+                                        )} />
+                                    <Button variant='default' className='mt-2 w-full' disabled={confirmDeleteForm.watch("name") !== deleteProjectId.name}>
+                                        {deleteProjectLoading ? <LoadingSvg /> : "Delete Project"}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </CardContent>
+                    </Card>
+                </div>
+            }
             {
                 createProjectOpen && <div onClick={() => {
                     setCreateProjectOpen(false)
@@ -97,7 +155,7 @@ const ProjectsPage = (props: Props) => {
                                             <Input placeholder="Project Name" className='w-[300px]' {...field} />
                                         )} />
                                     <Button variant='default' className='mt-2 w-full'>
-                                        {createProjectLoading ? loadingSvg : "Create Project"}
+                                        {createProjectLoading ? <LoadingSvg /> : "Create Project"}
                                     </Button>
                                 </form>
                             </Form>
@@ -111,14 +169,15 @@ const ProjectsPage = (props: Props) => {
             </div>
             <div className='grid grid-cols-2 xl:grid-cols-3 gap-4'>
                 {
-                    projects.map(project => {
+                    projects?.map(project => {
                         return <ProjectCard
                             key={project.ID}
                             id={project.ID}
                             title={project.Name}
                             description={project.LatestVersion?.Title || "No Published Version"}
                             content={"Content"}
-                            footer={"Footer"} />
+                            footer={"Footer"}
+                            onDelete={onDeleteProject} />
                     })
                 }
             </div>
