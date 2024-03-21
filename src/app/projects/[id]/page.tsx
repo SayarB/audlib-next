@@ -32,6 +32,7 @@ const ProjectByID = (props: Props) => {
     const { playbackLoading, startStream, idPlaying, pause, playbackPlaying } = usePlayback()
     const [createVersionOpen, setCreateVersionOpen] = React.useState(false)
     const [createVersionLoading, setCreateVersionLoading] = React.useState(false)
+    const [publishing, setPublishing] = React.useState(false)
     const isLoading = !project
 
     const form = useForm<z.infer<typeof createVersionSchema>>({
@@ -69,6 +70,19 @@ const ProjectByID = (props: Props) => {
         setCreateVersionLoading(false)
         setCreateVersionOpen(false)
         console.log(json)
+    }
+
+    const publishVersion = async (id: string) => {
+        setPublishing(true)
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}/versions/${id}/publish`, {
+            method: "POST",
+            credentials: "include",
+        })
+
+        const data = await res.json()
+        console.log(data)
+        setPublishing(false)
+        getProject()
     }
 
     useEffect(() => {
@@ -128,13 +142,13 @@ const ProjectByID = (props: Props) => {
                                         <TableHead></TableHead>
                                         <TableHead>Version</TableHead>
                                         <TableHead>Author</TableHead>
-                                        <TableHead>State</TableHead>
+                                        <TableHead><p className='ml-6'>State</p></TableHead>
                                         <TableHead align='center'>Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {project.Versions.map((version, i) =>
-                                        <TableRow key={version.ID} className='border border-1 cursor-pointer' onClick={() => {
+                                        <TableRow key={version.ID} className='border border-1 cursor-pointer hover:bg-white' onClick={() => {
                                             router.push(`/projects/${props.params.id}/version/${version.ID}`)
                                         }}>
                                             <TableCell>
@@ -148,7 +162,10 @@ const ProjectByID = (props: Props) => {
                                             </TableCell>
                                             <TableCell>{version.Title}</TableCell>
                                             <TableCell>{version.Author.Name}</TableCell>
-                                            <TableCell>{version.IsPublished ? "Published" : "Not Published"}</TableCell>
+                                            <TableCell >{!version.IsPublished ? <Button onClick={(e) => {
+                                                e.stopPropagation()
+                                                publishVersion(version.ID)
+                                            }} variant={'secondary'} className='w-[100px]'>{publishing ? <LoadingSvg /> : "Publish"}</Button> : <p className='ml-5'>Published</p>}</TableCell>
                                             <TableCell>
                                                 <Button variant={'outline'} onClick={() => {
                                                     router.push(`/projects/${props.params.id}/version/${version.ID}/download`)
