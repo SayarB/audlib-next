@@ -2,20 +2,22 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { env } from '@/env/schema'
 import { createVersionSchema, postAudioFileSchema, projectByIdResponseSchema } from '@/validate'
-import React, { ChangeEvent, useEffect } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { usePlayback } from '@/hooks/usePlayback'
 import { PauseButton, PlayButton } from '@/components/composite/Controls'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card'
 import { Form, FormField } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { LoadingSvg } from '@/components/icons/Loading'
 import FileUpload from '@/components/composite/FileUpload'
-import { CounterClockwiseClockIcon, DownloadIcon } from '@radix-ui/react-icons'
+import { CounterClockwiseClockIcon, DotsHorizontalIcon, DownloadIcon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/navigation'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 
 type Props = {
     params: {
@@ -23,16 +25,18 @@ type Props = {
     }
 }
 
-
+const confirmDeleteSchema = z.object({ name: z.string() })
 
 const ProjectByID = (props: Props) => {
 
     const router = useRouter()
-    const [project, setProject] = React.useState<z.infer<typeof projectByIdResponseSchema> | null>(null)
+    const [project, setProject] = useState<z.infer<typeof projectByIdResponseSchema> | null>(null)
     const { playbackLoading, startStream, idPlaying, pause, playbackPlaying } = usePlayback()
-    const [createVersionOpen, setCreateVersionOpen] = React.useState(false)
-    const [createVersionLoading, setCreateVersionLoading] = React.useState(false)
-    const [publishing, setPublishing] = React.useState(false)
+    const [createVersionOpen, setCreateVersionOpen] = useState(false)
+    const [createVersionLoading, setCreateVersionLoading] = useState(false)
+    const [publishingId, setPublishingId] = useState("")
+    const [deleteVersion, setDeleteVersion] = useState({ id: "", name: "" })
+    const [deleteVersionLoading, setDeleteVersionLoading] = useState(false)
     const isLoading = !project
 
     const form = useForm<z.infer<typeof createVersionSchema>>({
@@ -40,6 +44,13 @@ const ProjectByID = (props: Props) => {
         defaultValues: {
             title: "",
             audioFileId: ""
+        }
+    })
+
+    const confirmDeleteForm = useForm<z.infer<typeof confirmDeleteSchema>>({
+        resolver: zodResolver(confirmDeleteSchema),
+        defaultValues: {
+            name: "",
         }
     })
 
@@ -72,8 +83,28 @@ const ProjectByID = (props: Props) => {
         console.log(json)
     }
 
+    const onDeleteVersion = useCallback((vId: string, vName: string) => {
+        setDeleteVersion({ id: vId, name: vName })
+    }, [])
+
+    const onConfirmDelete = async () => {
+        setDeleteVersionLoading(true)
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${deleteVersion.id}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+        if (res.status !== 200) {
+            console.log("Could not delete project")
+            return
+        }
+        setDeleteVersionLoading(false)
+        setDeleteVersion({ id: "", name: "" })
+        confirmDeleteForm.reset()
+        getProject()
+    }
+
     const publishVersion = async (id: string) => {
-        setPublishing(true)
+        setPublishingId(id)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}/versions/${id}/publish`, {
             method: "POST",
             credentials: "include",
@@ -81,8 +112,21 @@ const ProjectByID = (props: Props) => {
 
         const data = await res.json()
         console.log(data)
-        setPublishing(false)
+        setPublishingId("")
         getProject()
+    }
+
+    const getDownloadLink = async (vid: string) => {
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${vid}/download`, {
+            credentials: 'include',
+            method: 'GET'
+        })
+        if (!res.ok) {
+            console.error("CAN NOT GENERATE DOWNLOAD LINK")
+        }
+        const data: { url: string } = await res.json()
+        console.log(data)
+        return data.url
     }
 
     useEffect(() => {
@@ -93,6 +137,38 @@ const ProjectByID = (props: Props) => {
 
     return (
         <>
+            {
+                deleteVersion.id !== "" && <div onClick={() => {
+                    setDeleteVersion({ id: "", name: "" })
+                    setDeleteVersionLoading(false)
+                }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-30'>
+                    <Card onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation()
+                    }} className='p-10'>
+                        <CardTitle className='mb-2'>
+                            Delete Version
+                        </CardTitle>
+                        <CardDescription className='mb-5'>
+                            Type the name of the Version to confirm deletion - {deleteVersion.name}
+                        </CardDescription>
+                        <CardContent>
+                            <Form {...confirmDeleteForm}>
+                                <form onSubmit={confirmDeleteForm.handleSubmit(onConfirmDelete)}>
+                                    <FormField
+                                        control={confirmDeleteForm.control}
+                                        name="name"
+                                        render={({ field }) => (
+                                            <Input placeholder="Version Name" className='min-w-[300px]' {...field} />
+                                        )} />
+                                    <Button variant='default' className='mt-2 w-full' disabled={confirmDeleteForm.watch("name") !== deleteVersion.name}>
+                                        {deleteVersionLoading ? <LoadingSvg /> : "Delete Project"}
+                                    </Button>
+                                </form>
+                            </Form>
+                        </CardContent>
+                    </Card>
+                </div>
+            }
             {createVersionOpen && <div onClick={() => {
                 setCreateVersionOpen(false)
             }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-30'>
@@ -109,7 +185,7 @@ const ProjectByID = (props: Props) => {
                                     control={form.control}
                                     name="title"
                                     render={({ field }) => (
-                                        <Input placeholder="Project Name" className='w-[300px] mb-2' {...field} />
+                                        <Input placeholder="Version Title" className='w-[300px] mb-2' {...field} />
                                     )} />
 
                                 <FileUpload key='1' onError={(e) => {
@@ -152,10 +228,10 @@ const ProjectByID = (props: Props) => {
                                             router.push(`/projects/${props.params.id}/version/${version.ID}`)
                                         }}>
                                             <TableCell>
-                                                {!playbackPlaying || idPlaying !== version.ID ? <PlayButton loading={playbackLoading} onClick={(e) => {
+                                                {!playbackPlaying || idPlaying !== version.ID ? <PlayButton loading={playbackLoading && idPlaying === version.ID} onClick={(e) => {
                                                     e.stopPropagation()
                                                     startStream(version.ID)
-                                                }} /> : <PauseButton loading={playbackLoading} onClick={(e) => {
+                                                }} /> : <PauseButton loading={playbackLoading && idPlaying === version.ID} onClick={(e) => {
                                                     e.stopPropagation()
                                                     pause()
                                                 }} />}
@@ -165,11 +241,34 @@ const ProjectByID = (props: Props) => {
                                             <TableCell >{!version.IsPublished ? <Button onClick={(e) => {
                                                 e.stopPropagation()
                                                 publishVersion(version.ID)
-                                            }} variant={'secondary'} className='w-[100px]'>{publishing ? <LoadingSvg /> : "Publish"}</Button> : <p className='ml-5'>Published</p>}</TableCell>
+                                            }} variant={'secondary'} className='w-[100px]'>{publishingId === version.ID ? <LoadingSvg /> : "Publish"}</Button> : <p className='ml-5'>Published</p>}</TableCell>
                                             <TableCell>
-                                                <Button variant={'outline'} onClick={() => {
-                                                    router.push(`/projects/${props.params.id}/version/${version.ID}/download`)
+                                                <Button variant={'outline'} onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    const downloadUrl = await getDownloadLink(version.ID)
+
+                                                    var link = document.createElement("a");
+                                                    link.href = downloadUrl;
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
                                                 }}><DownloadIcon /></Button></TableCell>
+                                            <TableCell onClick={(e) => {
+                                                e.stopPropagation()
+                                            }}>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger>
+                                                        <Button variant={'ghost'}>
+                                                            <DotsHorizontalIcon />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent>
+                                                        <DropdownMenuItem className='ml-2 cursor-pointer' onClick={() => {
+                                                            onDeleteVersion(version.ID, version.Title)
+                                                        }}>Delete</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>

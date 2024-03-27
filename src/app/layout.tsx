@@ -69,7 +69,6 @@ export default function RootLayout({
   useEffect(() => {
     if (streamToken !== "") {
       setupStream()
-      play()
     }
   }, [streamToken])
 

@@ -22,7 +22,7 @@ const ProjectsPage = (props: Props) => {
     const [projects, setProjects] = useState<z.infer<typeof projectResponseSchema>>([])
     const [createProjectOpen, setCreateProjectOpen] = useState(false)
     const [createProjectLoading, setCreateProjectLoading] = useState(false)
-    const [deleteProjectId, setDeleteProjectId] = useState({ id: "", name: "" })
+    const [deleteProject, setDeleteProject] = useState({ id: "", name: "" })
     const [deleteProjectLoading, setDeleteProjectLoading] = useState(false)
     const router = useRouter()
 
@@ -78,7 +78,7 @@ const ProjectsPage = (props: Props) => {
 
     const onConfirmDelete = async (data: z.infer<typeof confirmDeleteSchema>) => {
         setDeleteProjectLoading(true)
-        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${deleteProjectId.id}`, {
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${deleteProject.id}`, {
             method: "DELETE",
             credentials: "include",
         })
@@ -87,13 +87,13 @@ const ProjectsPage = (props: Props) => {
             return
         }
         setDeleteProjectLoading(false)
-        setDeleteProjectId({ id: "", name: "" })
+        setDeleteProject({ id: "", name: "" })
         confirmDeleteForm.reset()
         getProjects()
     }
 
     const onDeleteProject = useCallback((projId: string, projName: string) => {
-        setDeleteProjectId({ id: projId, name: projName })
+        setDeleteProject({ id: projId, name: projName })
     }, [])
 
     useEffect(() => {
@@ -105,8 +105,9 @@ const ProjectsPage = (props: Props) => {
     return (
         <div>
             {
-                deleteProjectId.id !== "" && <div onClick={() => {
-                    setDeleteProjectId({ id: "", name: "" })
+                deleteProject.id !== "" && <div onClick={() => {
+                    setDeleteProject({ id: "", name: "" })
+                    setDeleteProjectLoading(false)
                 }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center'>
                     <Card onClick={(e: React.MouseEvent) => {
                         e.stopPropagation()
@@ -115,7 +116,7 @@ const ProjectsPage = (props: Props) => {
                             Delete Project
                         </CardTitle>
                         <CardDescription className='mb-5'>
-                            Type the name of the project to confirm deletion - {deleteProjectId.name}
+                            Type the name of the project to confirm deletion - {deleteProject.name}
                         </CardDescription>
                         <CardContent>
                             <Form {...confirmDeleteForm}>
@@ -126,7 +127,7 @@ const ProjectsPage = (props: Props) => {
                                         render={({ field }) => (
                                             <Input placeholder="Project Name" className='min-w-[300px]' {...field} />
                                         )} />
-                                    <Button variant='default' className='mt-2 w-full' disabled={confirmDeleteForm.watch("name") !== deleteProjectId.name}>
+                                    <Button variant='default' className='mt-2 w-full' disabled={confirmDeleteForm.watch("name") !== deleteProject.name}>
                                         {deleteProjectLoading ? <LoadingSvg /> : "Delete Project"}
                                     </Button>
                                 </form>
@@ -167,7 +168,7 @@ const ProjectsPage = (props: Props) => {
                 <h1 className='font-bold '>Projects</h1>
                 <Button variant='default' onClick={onCreateProjectClick}>Create Project</Button>
             </div>
-            <div className='grid grid-cols-2 xl:grid-cols-3 gap-4'>
+            <div className='w-full  grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-5 lg:mt-0'>
                 {
                     projects?.map(project => {
                         return <ProjectCard

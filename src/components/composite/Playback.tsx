@@ -39,10 +39,12 @@ const Playback: React.FC = () => {
         console.log("use effect")
         audioRef?.current?.addEventListener('timeupdate', timeUpdate)
         audioRef?.current?.addEventListener('ended', ended)
+        audioRef?.current?.addEventListener('canplay', canPlay)
 
         return () => {
             audioRef?.current?.removeEventListener('timeupdate', timeUpdate)
             audioRef?.current?.removeEventListener('ended', ended)
+            audioRef?.current?.removeEventListener('canplay', canPlay)
         }
     }, [idPlaying])
 
@@ -66,6 +68,10 @@ const Playback: React.FC = () => {
         }
         // console.log("time update", time, duration)
 
+    }
+
+    const canPlay = () => {
+        play()
     }
 
     const ended = (e: Event) => {
