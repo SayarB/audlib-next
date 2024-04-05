@@ -1,8 +1,8 @@
 "use client"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { env } from '@/env/schema'
-import { createVersionSchema, postAudioFileSchema, projectByIdResponseSchema } from '@/validate'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { createVersionSchema, projectByIdResponseSchema } from '@/validate'
+import { useCallback, useEffect, useState } from 'react'
 import { z } from 'zod'
 import { usePlayback } from '@/hooks/usePlayback'
 import { PauseButton, PlayButton } from '@/components/composite/Controls'
@@ -14,10 +14,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { LoadingSvg } from '@/components/icons/Loading'
 import FileUpload from '@/components/composite/FileUpload'
-import { CounterClockwiseClockIcon, DotsHorizontalIcon, DownloadIcon } from '@radix-ui/react-icons'
+import { CounterClockwiseClockIcon, DotsHorizontalIcon, DownloadIcon, ExternalLinkIcon, TrashIcon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/navigation'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
+import { useWindowSize } from '@/hooks/useWindowSize'
+import Link from 'next/link'
 
 type Props = {
     params: {
@@ -37,6 +39,8 @@ const ProjectByID = (props: Props) => {
     const [publishingId, setPublishingId] = useState("")
     const [deleteVersion, setDeleteVersion] = useState({ id: "", name: "" })
     const [deleteVersionLoading, setDeleteVersionLoading] = useState(false)
+    const { width, height } = useWindowSize()
+    const isLargeScreenSize = width && width > 650
     const isLoading = !project
 
     const form = useForm<z.infer<typeof createVersionSchema>>({
@@ -208,7 +212,7 @@ const ProjectByID = (props: Props) => {
                 </div>
                 {
 
-                    isLoading ? "Loading" : project.Versions.length > 0 ?
+                    isLoading ? <div className='w-full h-[90vh] flex items-center justify-center'><LoadingSvg /></div> : project.Versions.length > 0 ?
                         <>
                             <h1 className='font-bold'>Audio Versions</h1>
 
@@ -224,9 +228,7 @@ const ProjectByID = (props: Props) => {
                                 </TableHeader>
                                 <TableBody>
                                     {project.Versions.map((version, i) =>
-                                        <TableRow key={version.ID} className='border border-1 cursor-pointer hover:bg-white' onClick={() => {
-                                            router.push(`/projects/${props.params.id}/version/${version.ID}`)
-                                        }}>
+                                        <TableRow key={version.ID} className='border border-1 hover:bg-white' >
                                             <TableCell>
                                                 {!playbackPlaying || idPlaying !== version.ID ? <PlayButton loading={playbackLoading && idPlaying === version.ID} onClick={(e) => {
                                                     e.stopPropagation()
@@ -236,38 +238,42 @@ const ProjectByID = (props: Props) => {
                                                     pause()
                                                 }} />}
                                             </TableCell>
-                                            <TableCell>{version.Title}</TableCell>
+                                            <TableCell><Link className='flex items-center' href={`/projects/${props.params.id}/version/${version.ID}`}>{version.Title} <ExternalLinkIcon className='ml-2' /></Link></TableCell>
                                             <TableCell>{version.Author.Name}</TableCell>
                                             <TableCell >{!version.IsPublished ? <Button onClick={(e) => {
                                                 e.stopPropagation()
                                                 publishVersion(version.ID)
                                             }} variant={'secondary'} className='w-[100px]'>{publishingId === version.ID ? <LoadingSvg /> : "Publish"}</Button> : <p className='ml-5'>Published</p>}</TableCell>
-                                            <TableCell>
-                                                <Button variant={'outline'} onClick={async (e) => {
+                                            {isLargeScreenSize && <TableCell>
+                                                <Button variant={'ghost'} onClick={async (e) => {
                                                     e.stopPropagation()
                                                     const downloadUrl = await getDownloadLink(version.ID)
-
                                                     var link = document.createElement("a");
                                                     link.href = downloadUrl;
                                                     document.body.appendChild(link);
                                                     link.click();
                                                     document.body.removeChild(link);
-                                                }}><DownloadIcon /></Button></TableCell>
-                                            <TableCell onClick={(e) => {
-                                                e.stopPropagation()
-                                            }}>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger>
-                                                        <Button variant={'ghost'}>
-                                                            <DotsHorizontalIcon />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem className='ml-2 cursor-pointer' onClick={() => {
-                                                            onDeleteVersion(version.ID, version.Title)
-                                                        }}>Delete</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                                                }}><DownloadIcon /></Button></TableCell>}
+                                            <TableCell>
+                                                {isLargeScreenSize ? <Button variant={"ghost"} onClick={() => {
+                                                    onDeleteVersion(version.ID, version.Title)
+                                                }} ><TrashIcon color='red' /></Button> :
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger>
+                                                            <Button variant={'ghost'}>
+                                                                <DotsHorizontalIcon />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuItem className='ml-2 cursor-pointer' onClick={() => {
+                                                                onDeleteVersion(version.ID, version.Title)
+                                                            }}>Delete</DropdownMenuItem>
+                                                            <DropdownMenuItem className='ml-2 cursor-pointer' onClick={() => {
+                                                                router.push(`/projects/${props.params.id}/version/${version.ID}`)
+                                                            }}>Visit</DropdownMenuItem>
+
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>}
                                             </TableCell>
                                         </TableRow>
                                     )}

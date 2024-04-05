@@ -235,3 +235,18 @@ export const versionByIdResponseSchema = z.object({
     })
   ),
 });
+
+export const userInfoSchema = z.object({
+  CreatedAt: z.string(),
+  UpdatedAt: z.string(),
+  DeletedAt: z.nullable(z.string()),
+  ID: z.string(),
+  Name: z.string(),
+  Email: z.string(),
+  DisplayName: z.string(),
+  Password: z.string(),
+  Sessions: z.nullable(z.unknown()),
+  Organizations: z.nullable(z.unknown()),
+  AudioFiles: z.nullable(z.unknown()),
+  Versions: z.nullable(z.unknown()),
+});

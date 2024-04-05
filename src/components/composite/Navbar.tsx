@@ -5,11 +5,13 @@ import { Button } from '../ui/button'
 import { Avatar } from '../ui/avatar'
 import { AvatarImage } from '@radix-ui/react-avatar'
 import Combobox from './Combobox'
-import { orgResponseSchema } from '@/validate'
+import { orgResponseSchema, userInfoSchema } from '@/validate'
 import { usePathname } from 'next/navigation'
 import { useCurrentOrg } from '@/hooks/useOrg'
 import { useWindowSize } from '@/hooks/useWindowSize'
-import { DoubleArrowLeftIcon, DoubleArrowRightIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
+import { env } from '@/env/schema'
+import { z } from 'zod'
 
 
 const NavList = [
@@ -62,11 +64,24 @@ const Navbar = () => {
     const { width, height } = useWindowSize()
     const isLargeScreenSize = (width ?? 0) > 1000
     const [orgs, setOrgs] = React.useState<{ ID: string, Name: string }[]>([])
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = React.useState(!isLargeScreenSize)
     const { currentOrg, revalidate, loading } = useCurrentOrg()
     const [loadingOrgs, setLoadingOrgs] = React.useState(true)
+    const [userInfo, setUserInfo] = React.useState<z.infer<typeof userInfoSchema> | null>(null)
     const pathname = usePathname()
     const isCurrent = (prefix: string) => prefix === "home" && pathname === "/" || pathname.startsWith(`/${prefix}`)
+
+    const getUserInfo = async () => {
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/info`, {
+            credentials: "include",
+        })
+
+        if (!res.ok) return
+        const json = await res.json()
+        setUserInfo(userInfoSchema.parse(json))
+
+    }
+
 
     const getOrgs = async () => {
         setLoadingOrgs(true)
@@ -84,6 +99,7 @@ const Navbar = () => {
     useEffect(() => {
         getOrgs()
         revalidate()
+        getUserInfo()
     }, [revalidate])
 
     return (
@@ -95,15 +111,15 @@ const Navbar = () => {
                     <div className="px-3 py-2">
                         {loading || loadingOrgs ? "Loading" : <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />}
 
-                        <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 rounded-md'>
+                        <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 hover:bg-gray-400 cursor-pointer rounded-md'>
                             <div className='mr-2'>
                                 <Avatar>
-                                    <AvatarImage src="https://github.com/shadcn.png" alt="avatar" />
+                                    <AvatarImage src={userInfo ? `https://source.boringavatars.com/marble/120/${userInfo?.DisplayName}?colors=264653,2a9d8f,e9c46a,f4a261,e76f51` : ""} alt="avatar" />
                                 </Avatar>
                             </div>
                             <div>
-                                <h1 className="text-lg font-bold">Shad</h1>
-                                <p className="text-sm">AGASGA</p>
+                                <h1 className="text-lg font-bold">{userInfo?.DisplayName}</h1>
+                                <p className="text-sm">{userInfo?.Name}</p>
                             </div>
                         </div>
 
