@@ -19,13 +19,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const noAuthRequired = ["/login"]
   const router = useRouter()
   const pathname = usePathname()
+  const [checkingOrg, setCheckingOrg] = useState(noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1)
+  const [checkingAuth, setCheckingAuth] = useState(noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1)
   const checkAuth = async () => {
     console.log("checking auth")
+    setCheckingAuth(true)
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/check`, {
       credentials: 'include',
     })
+    setCheckingAuth(false)
     if (res.status === 401) {
       return router.push("/login")
     } else {
@@ -34,20 +39,24 @@ export default function RootLayout({
   }
 
   const checkOrg = async () => {
+    setCheckingOrg(true)
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/orgs/check`, {
       credentials: 'include',
     })
-    if (res.status !== 200) {
+    const data = await res.json()
+    setCheckingOrg(false)
+    if (res.status !== 200 || !data) {
       router.push("/org/select")
     }
   }
 
 
   useEffect(() => {
-    checkAuth()
+    if (noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1) checkAuth()
   }, [pathname])
 
-  const noNavbarPath = ["/login", "/org/select"]
+  const noNavbarPath = ["/login", "/org/select", "/login"]
+
   const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
   const ref = useRef<HTMLAudioElement | null>(null)
   const [idPlaying, setIdPlaying] = useState<string>("");
@@ -136,7 +145,7 @@ export default function RootLayout({
 
             <div className="flex justify-center w-full">
               <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
-                {children}
+                {(checkingAuth || checkingOrg) ? "Loading..." : children}
               </div>
             </div>
           </div>

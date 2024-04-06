@@ -3,9 +3,8 @@ import { z } from "zod";
 const usernameSchema = z.string().min(3).max(20);
 const passwordSchema = z.string().min(8).max(20);
 
-export const userSchema = z.object({
+export const loginSchema = z.object({
   email: z.string().min(3),
-  password: z.string().min(3),
 });
 
 export const loginResponseSchema = z.object({
@@ -249,4 +248,10 @@ export const userInfoSchema = z.object({
   Organizations: z.nullable(z.unknown()),
   AudioFiles: z.nullable(z.unknown()),
   Versions: z.nullable(z.unknown()),
+});
+
+export const registerSchema = z.object({
+  name: z.string(),
+  displayName: z.string(),
+  orgName: z.string(),
 });

@@ -1,25 +1,26 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { loginResponseSchema, userSchema } from '@/validate';
+import { loginResponseSchema, loginSchema } from '@/validate';
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { env } from '@/env/schema';
 import { useRouter } from 'next/navigation';
+import { LoadingSvg } from '@/components/icons/Loading';
 const LoginPage = () => {
 
     const router = useRouter()
-    const form = useForm<z.infer<typeof userSchema>>({
-        resolver: zodResolver(userSchema),
+    const form = useForm<z.infer<typeof loginSchema>>({
+        resolver: zodResolver(loginSchema),
         defaultValues: {
             email: '',
-            password: '',
         },
     });
-
+    const [loading, setLoading] = useState(false)
+    const [sent, setSent] = useState(false)
     const getOrgs = (final: z.infer<typeof loginResponseSchema>) => {
         // if (final.Organizations.length === 1) {
         //     console.log("changing state to single ID")
@@ -31,7 +32,8 @@ const LoginPage = () => {
         }
     }
 
-    const onSubmit = async (data: z.infer<typeof userSchema>) => {
+    const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+        setLoading(true)
         const result = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/login`, {
             method: 'POST',
             credentials: 'include',
@@ -44,6 +46,8 @@ const LoginPage = () => {
         if (result.status !== 200) {
             console.log("Wrong Credentials")
         }
+        setSent(true)
+        setLoading(false)
         const json = await result.json()
         const final = loginResponseSchema.parse(json)
         getOrgs(final)
@@ -67,22 +71,8 @@ const LoginPage = () => {
                                 </FormItem>
                             )}
                         />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Password</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="Password" type='password' {...field} />
-                                    </FormControl>
-
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <div className='flex'>
-                            <Button className='mt-2 mx-auto w-full'>Submit</Button>
+                            <Button className='mt-2 mx-auto w-full' disabled={sent}>{loading ? <LoadingSvg /> : sent ? "Sent Verification Mail" : "Submit"}</Button>
                         </div>
 
                     </form>
