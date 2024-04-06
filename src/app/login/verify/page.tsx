@@ -3,7 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { registerSchema } from '@/validate'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { env } from '@/env/schema'
@@ -63,7 +63,7 @@ const Register = (props: Props) => {
     }
 
     return (
-        <div className='w-[100%] h-[100%] flex items-center justify-center'>
+        <Suspense><div className='w-[100%] h-[100%] flex items-center justify-center'>
             {loading ? <div>Loading...</div> : <div className='w-[80vw] max-w-[500px] p-10 border border-input'>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
@@ -117,6 +117,7 @@ const Register = (props: Props) => {
                 {/* <p>Form</p> */}
             </div>}
         </div>
+        </Suspense>
     )
 }
 
