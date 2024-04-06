@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Navbar from "@/components/composite/Navbar";
 import Playback from "@/components/composite/Playback";
 import { PlaybackProvider } from "@/context/PlaybackContext";
+import { AuthProvider } from "@/context/AuthContext";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -22,8 +23,10 @@ export default function RootLayout({
   const noAuthRequired = ["/login"]
   const router = useRouter()
   const pathname = usePathname()
-  const [checkingOrg, setCheckingOrg] = useState(noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1)
-  const [checkingAuth, setCheckingAuth] = useState(noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1)
+  const [isAuthed, setIsAuthed] = useState(false)
+  const [isOrgSelected, setIsOrgSelected] = useState(false)
+  const [checkingOrg, setCheckingOrg] = useState(true)
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const checkAuth = async () => {
     console.log("checking auth")
     setCheckingAuth(true)
@@ -34,8 +37,9 @@ export default function RootLayout({
     if (res.status === 401) {
       return router.push("/login")
     } else {
-      await checkOrg()
+      if (pathname !== "/org/select") await checkOrg()
     }
+    setIsAuthed(true)
   }
 
   const checkOrg = async () => {
@@ -46,13 +50,18 @@ export default function RootLayout({
     const data = await res.json()
     setCheckingOrg(false)
     if (res.status !== 200 || !data) {
-      router.push("/org/select")
+      return router.push("/org/select")
     }
+    setIsOrgSelected(true)
   }
 
 
   useEffect(() => {
     if (noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1) checkAuth()
+    else {
+      setCheckingAuth(false)
+      setCheckingOrg(false)
+    }
   }, [pathname])
 
   const noNavbarPath = ["/login", "/org/select", "/login"]
@@ -135,20 +144,23 @@ export default function RootLayout({
   const state = {
     audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream
   }
+  const authState = { isAuthed, isOrgSelected }
 
   return (
     <html lang="en">
       <body className={inter.className}>
         <PlaybackProvider value={state}>
-          <div className="min-w-[100vw] flex">
-            {isNavbarRoute && <Navbar />}
+          <AuthProvider value={authState}>
+            <div className="min-w-[100vw] flex">
+              {isNavbarRoute && <Navbar />}
 
-            <div className="flex justify-center w-full">
-              <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
-                {(checkingAuth || checkingOrg) ? "Loading..." : children}
+              <div className="flex justify-center w-full">
+                <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
+                  {(checkingAuth || checkingOrg) ? "Loading..." : children}
+                </div>
               </div>
             </div>
-          </div>
+          </AuthProvider>
           <Playback />
         </PlaybackProvider>
       </body>

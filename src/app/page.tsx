@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { env } from "@/env/schema";
+import { useAuth } from "@/hooks/useAuth";
 import { projectResponseSchema } from "@/validate";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -11,21 +12,21 @@ import { z } from "zod";
 export default function Home() {
 
   const [projects, setProjects] = useState<z.infer<typeof projectResponseSchema>>([])
-
+  const { isAuthed, isOrgSelected } = useAuth()
   const getProjects = async () => {
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects`, {
       credentials: "include",
     })
 
     const data = await res.json()
-
+    if (res.status !== 200) console.log("Error fetching projects")
     console.log(data)
     setProjects(data ?? [])
   }
 
   useEffect(() => {
-    getProjects()
-  }, [])
+    if (isAuthed && isOrgSelected) getProjects()
+  }, [isAuthed, isOrgSelected])
 
   return (
     <main className="">

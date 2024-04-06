@@ -243,7 +243,6 @@ export const userInfoSchema = z.object({
   Name: z.string(),
   Email: z.string(),
   DisplayName: z.string(),
-  Password: z.string(),
   Sessions: z.nullable(z.unknown()),
   Organizations: z.nullable(z.unknown()),
   AudioFiles: z.nullable(z.unknown()),
