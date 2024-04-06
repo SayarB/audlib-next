@@ -63,7 +63,7 @@ const Register = (props: Props) => {
     }
 
     return (
-        <Suspense><div className='w-[100%] h-[100%] flex items-center justify-center'>
+        <div className='w-[100%] h-[100%] flex items-center justify-center'>
             {loading ? <div>Loading...</div> : <div className='w-[80vw] max-w-[500px] p-10 border border-input'>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
@@ -117,7 +117,7 @@ const Register = (props: Props) => {
                 {/* <p>Form</p> */}
             </div>}
         </div>
-        </Suspense>
+
     )
 }
 
