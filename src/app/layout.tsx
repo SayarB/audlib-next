@@ -64,7 +64,7 @@ export default function RootLayout({
     }
   }, [pathname])
 
-  const noNavbarPath = ["/login", "/org/select", "/login"]
+  const noNavbarPath = ["/login", "/org/select", "/login/verify"]
 
   const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
   const ref = useRef<HTMLAudioElement | null>(null)

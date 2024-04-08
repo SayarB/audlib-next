@@ -97,9 +97,9 @@ const Navbar = () => {
     }
 
     useEffect(() => {
-        getOrgs()
+        if (orgs.length == 0) getOrgs()
         revalidate()
-        getUserInfo()
+        if (!userInfo) getUserInfo()
     }, [revalidate])
 
     return (

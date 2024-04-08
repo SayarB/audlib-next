@@ -9,6 +9,7 @@ import { z } from 'zod'
 import { env } from '@/env/schema'
 import { Button } from '@/components/ui/button'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { LoadingSvg } from '@/components/icons/Loading'
 
 type Props = {}
 
@@ -109,7 +110,7 @@ const Register = (props: Props) => {
                             )}
                         />
                         <div className='flex'>
-                            <Button className='mt-2 mx-auto w-full'>Submit</Button>
+                            <Button className='mt-2 mx-auto w-full'>{loading ? <LoadingSvg /> : "Submit"}</Button>
                         </div>
 
                     </form>

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { env } from '@/env/schema'
 import { createProjectSchema, projectResponseSchema } from '@/validate'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { set, z } from 'zod'
@@ -19,8 +19,9 @@ const confirmDeleteSchema = z.object({ name: z.string() })
 
 const ProjectsPage = (props: Props) => {
 
+    const create = useSearchParams().get("create")
     const [projects, setProjects] = useState<z.infer<typeof projectResponseSchema>>([])
-    const [createProjectOpen, setCreateProjectOpen] = useState(false)
+    const [createProjectOpen, setCreateProjectOpen] = useState(create == "true")
     const [createProjectLoading, setCreateProjectLoading] = useState(false)
     const [deleteProject, setDeleteProject] = useState({ id: "", name: "" })
     const [deleteProjectLoading, setDeleteProjectLoading] = useState(false)
@@ -125,7 +126,7 @@ const ProjectsPage = (props: Props) => {
                                         control={confirmDeleteForm.control}
                                         name="name"
                                         render={({ field }) => (
-                                            <Input placeholder="Project Name" className='min-w-[300px]' {...field} />
+                                            <Input placeholder="Project Name" className='min-w-[200px]' {...field} />
                                         )} />
                                     <Button variant='default' className='mt-2 w-full' disabled={confirmDeleteForm.watch("name") !== deleteProject.name}>
                                         {deleteProjectLoading ? <LoadingSvg /> : "Delete Project"}
@@ -139,10 +140,10 @@ const ProjectsPage = (props: Props) => {
             {
                 createProjectOpen && <div onClick={() => {
                     setCreateProjectOpen(false)
-                }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center'>
+                }} className='fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50'>
                     <Card onClick={(e: React.MouseEvent) => {
                         e.stopPropagation()
-                    }} className='p-10'>
+                    }} className='p-10 w-[95vw] max-w-[500px] min-w-[350px]'>
                         <CardTitle className='mb-5'>
                             Create Project
                         </CardTitle>
@@ -153,7 +154,7 @@ const ProjectsPage = (props: Props) => {
                                         control={form.control}
                                         name="name"
                                         render={({ field }) => (
-                                            <Input placeholder="Project Name" className='w-[300px]' {...field} />
+                                            <Input placeholder="Project Name" className='' {...field} />
                                         )} />
                                     <Button variant='default' className='mt-2 w-full'>
                                         {createProjectLoading ? <LoadingSvg /> : "Create Project"}
@@ -165,7 +166,7 @@ const ProjectsPage = (props: Props) => {
                 </div>
             }
             <div className='flex justify-between mb-2'>
-                <h1 className='font-bold '>Projects</h1>
+                <h1 className='font-bold text-3xl'>Projects</h1>
                 <Button variant='default' onClick={onCreateProjectClick}>Create Project</Button>
             </div>
             <div className='w-full  grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-5 lg:mt-0'>
