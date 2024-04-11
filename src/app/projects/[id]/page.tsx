@@ -197,7 +197,7 @@ const ProjectByID = (props: Props) => {
                                 }} onFileUploadEnd={(data) => {
                                     form.setValue("audioFileId", data.ID)
                                 }} />
-                                <Button variant='default' className='mt-2 w-full' type='submit'>
+                                <Button variant='default' className='mt-2 w-full' type='submit' disabled={form.watch('audioFileId') === ""}>
                                     {createVersionLoading ? <LoadingSvg /> : "Create Version"}
                                 </Button>
                             </form>
