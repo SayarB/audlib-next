@@ -222,12 +222,13 @@ const ProjectByID = (props: Props) => {
                                         <TableHead></TableHead>
                                         <TableHead>Version</TableHead>
                                         <TableHead>Author</TableHead>
+                                        <TableHead>Date</TableHead>
                                         <TableHead><p className='ml-6'>State</p></TableHead>
                                         <TableHead align='center'>Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {project.Versions.map((version, i) =>
+                                    {project.Versions.sort((a, b) => a.ID.localeCompare(b.ID)).map((version, i) =>
                                         <TableRow key={version.ID} className='border border-1 hover:bg-white' >
                                             <TableCell>
                                                 {!playbackPlaying || idPlaying !== version.ID ? <PlayButton loading={playbackLoading && idPlaying === version.ID} onClick={(e) => {
@@ -240,6 +241,7 @@ const ProjectByID = (props: Props) => {
                                             </TableCell>
                                             <TableCell><Link className='flex items-center' href={`/projects/${props.params.id}/version/${version.ID}`}>{version.Title} <ExternalLinkIcon className='ml-2' /></Link></TableCell>
                                             <TableCell>{version.Author.Name}</TableCell>
+                                            <TableCell>{new Date(version.CreatedAt).toLocaleDateString()}</TableCell>
                                             <TableCell >{!version.IsPublished ? <Button onClick={(e) => {
                                                 e.stopPropagation()
                                                 publishVersion(version.ID)
