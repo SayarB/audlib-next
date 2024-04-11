@@ -192,7 +192,7 @@ const ProjectByID = (props: Props) => {
                                         <Input placeholder="Version Title" className='w-[300px] mb-2' {...field} />
                                     )} />
 
-                                <FileUpload key='1' onError={(e) => {
+                                <FileUpload keyString='1' onError={(e) => {
                                     form.setError("root", { message: e })
                                 }} onFileUploadEnd={(data) => {
                                     form.setValue("audioFileId", data.ID)

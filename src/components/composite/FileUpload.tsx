@@ -7,12 +7,12 @@ import { LoadingSvg } from '../icons/Loading'
 import { UploadIcon } from '@radix-ui/react-icons'
 
 type Props = {
-    key: string
+    keyString: string
     onError: (e: string) => void
     onFileUploadEnd: (data: z.infer<typeof postAudioFileSchema>) => void
 }
 
-const FileUpload = ({ key, onError, onFileUploadEnd }: Props) => {
+const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
     const [fileUploading, setFileUploading] = React.useState(false)
     const [fileName, setFileName] = React.useState("")
     const onFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -67,11 +67,12 @@ const FileUpload = ({ key, onError, onFileUploadEnd }: Props) => {
                 body: JSON.stringify({ key: uploadUrl.key, filename: file.name, size: file.size, mime: file.type })
             })
 
-            if (addAudioToDBRes.status !== 200) {
+            if (addAudioToDBRes.status !== 200 && addAudioToDBRes.status !== 201) {
                 throw new Error("Could not add audio to db")
             }
 
             const data = postAudioFileSchema.parse(await addAudioToDBRes.json())
+            console.log("Upload end", data)
             onFileUploadEnd(data)
         } catch (e) {
             console.error(e)
@@ -84,12 +85,12 @@ const FileUpload = ({ key, onError, onFileUploadEnd }: Props) => {
 
     return (
         <div className='w-[300px] h-[50px]'>
-            <label htmlFor={`file-upload-${key}`} className='w-[300px] h-[50px] cursor-pointer'>
-                <Input id={`file-upload-${key}`} placeholder="Audio File" className='w-[300px] hidden' type='file' onChange={onFileUpload} />
+            <label htmlFor={`file-upload-${keyString}`} className='w-[300px] h-[50px] cursor-pointer'>
+                <Input id={`file-upload-${keyString}`} placeholder="Audio File" className='w-[300px] hidden' type='file' onChange={onFileUpload} />
                 <div className='w-full h-full border text-center flex items-center justify-center'>
-                    {!fileUploading ? <p>
+                    {!fileUploading ? <div>
                         {fileName.length > 0 ? fileName : <div className='flex items-center'><p className='mr-2'>Upload</p><UploadIcon /></div>}
-                    </p> :
+                    </div> :
                         <LoadingSvg />
                     }
                 </div>
