@@ -21,20 +21,65 @@ const FileUpload = ({ key, onError, onFileUploadEnd }: Props) => {
         const formData = new FormData()
         formData.append("audioFile", file)
         setFileUploading(true)
-        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio`, {
-            method: "POST",
-            credentials: "include",
-            body: formData
-        })
+        // const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio`, {
+        //     method: "POST",
+        //     credentials: "include",
+        //     body: formData
+        // })
 
-        if (!res.ok) {
-            onError("Could not upload file")
+
+        // if (!res.ok) {
+        //     onError("Could not upload file")
+        // }
+
+        try {
+            const resUploadUrl = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio/upload?filename=${file.name}`, {
+                credentials: "include",
+            })
+            if (resUploadUrl.status !== 200) {
+                throw new Error("Could not get upload url")
+            }
+
+            const uploadUrl = (await resUploadUrl.json()) as {
+                url: string, key: string
+            }
+
+
+            const res = await fetch(uploadUrl.url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": file.type,
+                    "Content-Length": file.size.toString(),
+                },
+                body: formData.get("audioFile"),
+            })
+
+            if (res.status !== 200) {
+                throw new Error("Could not upload file")
+            }
+
+            const addAudioToDBRes = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ key: uploadUrl.key, filename: file.name, size: file.size, mime: file.type })
+            })
+
+            if (addAudioToDBRes.status !== 200) {
+                throw new Error("Could not add audio to db")
+            }
+
+            const data = postAudioFileSchema.parse(await addAudioToDBRes.json())
+            onFileUploadEnd(data)
+        } catch (e) {
+            console.error(e)
+        } finally {
+            setFileUploading(false)
+            setFileName(file.name ?? "")
         }
 
-        const data = postAudioFileSchema.parse(await res.json())
-        onFileUploadEnd(data)
-        setFileUploading(false)
-        setFileName(file.name)
     }
 
     return (
