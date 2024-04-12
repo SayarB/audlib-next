@@ -52,7 +52,7 @@ export default function Home() {
                               {project.Name}
                             </p>
                             <p>
-                              {project.LatestVersion?.Title ?? "No Version"}
+                              {project.LatestVersion ? (project.LatestVersion?.IsPublished ? "Published: " : "Latest: ") + project.LatestVersion.Title : "No Versions"}
                             </p>
                           </div>
                         </CardContent>

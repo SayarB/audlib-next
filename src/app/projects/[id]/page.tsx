@@ -234,6 +234,7 @@ const ProjectByID = (props: Props) => {
                                         <TableHead>Date</TableHead>
                                         <TableHead><p className='ml-6'>State</p></TableHead>
                                         <TableHead align='center'>Actions</TableHead>
+                                        <TableHead></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
