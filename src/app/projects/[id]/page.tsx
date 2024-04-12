@@ -14,12 +14,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@/components/ui/input'
 import { LoadingSvg } from '@/components/icons/Loading'
 import FileUpload from '@/components/composite/FileUpload'
-import { CounterClockwiseClockIcon, DotsHorizontalIcon, DownloadIcon, ExternalLinkIcon, TrashIcon } from '@radix-ui/react-icons'
+import { ClipboardCopyIcon, DotsHorizontalIcon, DownloadIcon, ExternalLinkIcon, TrashIcon } from '@radix-ui/react-icons'
 import { useRouter } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import Link from 'next/link'
+import { useToast } from '@/components/ui/use-toast'
 
 type Props = {
     params: {
@@ -40,6 +41,7 @@ const ProjectByID = (props: Props) => {
     const [deleteVersion, setDeleteVersion] = useState({ id: "", name: "" })
     const [deleteVersionLoading, setDeleteVersionLoading] = useState(false)
     const { width, height } = useWindowSize()
+    const { toast } = useToast()
     const isLargeScreenSize = width && width > 650
     const isLoading = !project
 
@@ -131,6 +133,13 @@ const ProjectByID = (props: Props) => {
         const data: { url: string } = await res.json()
         console.log(data)
         return data.url
+    }
+
+    const handleClickCopy = async (id: string) => {
+        await navigator.clipboard.writeText(`${env.NEXT_PUBLIC_URL}/music/${id}`)
+        toast({
+            title: "Link Copied to Clipboard",
+        })
     }
 
     useEffect(() => {
@@ -245,7 +254,7 @@ const ProjectByID = (props: Props) => {
                                             <TableCell >{!version.IsPublished ? <Button onClick={(e) => {
                                                 e.stopPropagation()
                                                 publishVersion(version.ID)
-                                            }} variant={'secondary'} className='w-[100px]'>{publishingId === version.ID ? <LoadingSvg /> : "Publish"}</Button> : <p className='ml-5'>Published</p>}</TableCell>
+                                            }} variant={'secondary'} className='w-[100px]'>{publishingId === version.ID ? <LoadingSvg /> : "Publish"}</Button> : <div className='flex items-center'><Button className='ml-5 p-0' variant={'link'} onClick={() => handleClickCopy(version.ID)}>Published <ClipboardCopyIcon className='ml-2' /></Button></div>}</TableCell>
                                             {isLargeScreenSize && <TableCell>
                                                 <Button variant={'ghost'} onClick={async (e) => {
                                                     e.stopPropagation()

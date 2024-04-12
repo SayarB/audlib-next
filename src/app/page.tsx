@@ -41,7 +41,7 @@ export default function Home() {
         <Card className="">
           {loadingProjects || projects.length > 0 ? <><CardHeader> <div className="flex justify-between"><p className="text-2xl font-bold">Your Projects</p> <Link href={'/projects'}><Button variant={'default'}>View All</Button></Link></div></CardHeader>
             <CardContent>
-              <ul className="max-h-[270px] overflow-scroll">
+              <ul className="max-h-[270px] overflow-hidden">
                 {projects.map((project) => (
                   <li key={project.ID}>
                     <Link href={`/projects/${project.ID}`}>

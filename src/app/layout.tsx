@@ -8,6 +8,7 @@ import Navbar from "@/components/composite/Navbar";
 import Playback from "@/components/composite/Playback";
 import { PlaybackProvider } from "@/context/PlaybackContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const noAuthRequired = ["/login"]
+  const noAuthRequired = ["/login", "/music"]
   const router = useRouter()
   const pathname = usePathname()
   const [isAuthed, setIsAuthed] = useState(false)
@@ -64,7 +65,7 @@ export default function RootLayout({
     }
   }, [pathname])
 
-  const noNavbarPath = ["/login", "/org/select", "/login/verify"]
+  const noNavbarPath = ["/login", "/org/select", "/login/verify", "/music"]
 
   const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
   const ref = useRef<HTMLAudioElement | null>(null)
@@ -163,6 +164,7 @@ export default function RootLayout({
           </AuthProvider>
           <Playback />
         </PlaybackProvider>
+        <Toaster />
       </body>
     </html>
   );
