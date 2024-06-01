@@ -12,6 +12,7 @@ import { useWindowSize } from '@/hooks/useWindowSize'
 import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons'
 import { env } from '@/env/schema'
 import { z } from 'zod'
+import { useAuth } from '@clerk/nextjs'
 
 
 const NavList = [
@@ -69,11 +70,14 @@ const Navbar = () => {
     const [loadingOrgs, setLoadingOrgs] = React.useState(true)
     const [userInfo, setUserInfo] = React.useState<z.infer<typeof userInfoSchema> | null>(null)
     const pathname = usePathname()
+    const { getToken } = useAuth()
     const isCurrent = (prefix: string) => prefix === "home" && pathname === "/" || pathname.startsWith(`/${prefix}`)
 
     const getUserInfo = async () => {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/info`, {
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
 
         if (!res.ok) return
@@ -86,7 +90,9 @@ const Navbar = () => {
     const getOrgs = async () => {
         setLoadingOrgs(true)
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs`, {
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
         if (!res.ok) return
         const json = await res.json()

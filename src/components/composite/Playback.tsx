@@ -11,6 +11,7 @@ import { env } from '@/env/schema';
 import { versionResponseSchema } from '@/validate';
 import { z } from 'zod';
 import { PauseButton, PlayButton } from './Controls';
+import { useAuth } from '@clerk/nextjs';
 
 
 
@@ -21,10 +22,13 @@ const Playback: React.FC = () => {
     const [metadata, setMetadata] = useState<z.infer<typeof versionResponseSchema> | null>(null)
     const [metadataLoading, setMetadataLoading] = useState(false)
     const timeoutRef = React.useRef<NodeJS.Timeout | null>(null)
+    const { getToken } = useAuth()
     const fetchVersion = async () => {
         setMetadataLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${idPlaying}`, {
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
         const data = await res.json()
         setMetadata(versionResponseSchema.parse(data))

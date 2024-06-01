@@ -21,6 +21,7 @@ import { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 import { useWindowSize } from '@/hooks/useWindowSize'
 import Link from 'next/link'
 import { useToast } from '@/components/ui/use-toast'
+import { useAuth } from '@clerk/nextjs'
 
 type Props = {
     params: {
@@ -41,6 +42,9 @@ const ProjectByID = (props: Props) => {
     const [deleteVersion, setDeleteVersion] = useState({ id: "", name: "" })
     const [deleteVersionLoading, setDeleteVersionLoading] = useState(false)
     const { width, height } = useWindowSize()
+
+    const { getToken } = useAuth()
+
     const { toast } = useToast()
     const isLargeScreenSize = width && width > 650
     const isLoading = !project
@@ -62,7 +66,9 @@ const ProjectByID = (props: Props) => {
 
     async function getProject() {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}`, {
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
 
         const data = await res.json()
@@ -76,8 +82,8 @@ const ProjectByID = (props: Props) => {
         setCreateVersionLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}/version`, {
             method: "POST",
-            credentials: "include",
             headers: {
+                'Authorization': 'Bearer ' + await getToken(),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
@@ -97,7 +103,9 @@ const ProjectByID = (props: Props) => {
         setDeleteVersionLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${deleteVersion.id}`, {
             method: "DELETE",
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
         if (res.status !== 200) {
             console.log("Could not delete project")
@@ -113,7 +121,9 @@ const ProjectByID = (props: Props) => {
         setPublishingId(id)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${props.params.id}/versions/${id}/publish`, {
             method: "POST",
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
 
         const data = await res.json()
@@ -124,8 +134,10 @@ const ProjectByID = (props: Props) => {
 
     const getDownloadLink = async (vid: string) => {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${vid}/download`, {
-            credentials: 'include',
-            method: 'GET'
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
         if (!res.ok) {
             console.error("CAN NOT GENERATE DOWNLOAD LINK")

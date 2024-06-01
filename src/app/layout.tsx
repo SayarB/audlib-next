@@ -7,8 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import Navbar from "@/components/composite/Navbar";
 import Playback from "@/components/composite/Playback";
 import { PlaybackProvider } from "@/context/PlaybackContext";
-import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/toaster";
+import { ClerkProvider } from "@clerk/nextjs";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -21,51 +21,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const noAuthRequired = ["/login", "/music"]
+  // const noAuthRequired = ["/sign-in", "/sign-up", "/music"]
   const router = useRouter()
   const pathname = usePathname()
-  const [isAuthed, setIsAuthed] = useState(false)
-  const [isOrgSelected, setIsOrgSelected] = useState(false)
-  const [checkingOrg, setCheckingOrg] = useState(true)
-  const [checkingAuth, setCheckingAuth] = useState(true)
-  const checkAuth = async () => {
-    console.log("checking auth")
-    setCheckingAuth(true)
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/check`, {
-      credentials: 'include',
-    })
-    setCheckingAuth(false)
-    if (res.status === 401) {
-      return router.push("/login")
-    } else {
-      if (pathname !== "/org/select") await checkOrg()
-    }
-    setIsAuthed(true)
-  }
 
-  const checkOrg = async () => {
-    setCheckingOrg(true)
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/orgs/check`, {
-      credentials: 'include',
-    })
-    const data = await res.json()
-    setCheckingOrg(false)
-    if (res.status !== 200 || !data) {
-      return router.push("/org/select")
-    }
-    setIsOrgSelected(true)
-  }
-
-
-  useEffect(() => {
-    if (noAuthRequired.findIndex(ele => pathname.startsWith(ele)) === -1) checkAuth()
-    else {
-      setCheckingAuth(false)
-      setCheckingOrg(false)
-    }
-  }, [pathname])
-
-  const noNavbarPath = ["/login", "/org/select", "/login/verify", "/music"]
+  const noNavbarPath = ["/login", "/org/select", "/login/verify", "/music", "/sign-in", "/sign-up", "/onboard"]
 
   const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
   const ref = useRef<HTMLAudioElement | null>(null)
@@ -145,27 +105,25 @@ export default function RootLayout({
   const state = {
     audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream
   }
-  const authState = { isAuthed, isOrgSelected }
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <PlaybackProvider value={state}>
-          <AuthProvider value={authState}>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <PlaybackProvider value={state}>
             <div className="min-w-[100vw] flex">
               {isNavbarRoute && <Navbar />}
-
               <div className="flex justify-center w-full">
                 <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
-                  {(checkingAuth || checkingOrg) ? "Loading..." : children}
+                  {children}
                 </div>
               </div>
             </div>
-          </AuthProvider>
-          <Playback />
-        </PlaybackProvider>
-        <Toaster />
-      </body>
-    </html>
+            <Playback />
+          </PlaybackProvider>
+          <Toaster />
+        </body>
+      </html>
+    </ClerkProvider >
   );
 }

@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { env } from "@/env/schema";
-import { useAuth } from "@/hooks/useAuth";
 import { projectResponseSchema } from "@/validate";
+import { useAuth, useOrganization } from "@clerk/nextjs";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -14,10 +14,15 @@ export default function Home() {
 
   const [projects, setProjects] = useState<z.infer<typeof projectResponseSchema>>([])
   const [loadingProjects, setLoadingProjects] = useState(true)
-  const { isAuthed, isOrgSelected } = useAuth()
+  const { organization } = useOrganization()
+  const { isSignedIn, getToken } = useAuth()
   const getProjects = async () => {
+
+    console.log(organization)
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects?limit=3`, {
-      credentials: "include",
+      headers: {
+        'Authorization': `Bearer ${await getToken()}`
+      }
     })
 
     const data = await res.json()
@@ -29,8 +34,8 @@ export default function Home() {
   }
 
   useEffect(() => {
-    if (isAuthed && isOrgSelected) getProjects()
-  }, [isAuthed, isOrgSelected])
+    if (isSignedIn) getProjects()
+  }, [isSignedIn])
 
   return (
     <main className="">

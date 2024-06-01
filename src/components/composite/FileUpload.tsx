@@ -5,6 +5,7 @@ import { postAudioFileSchema } from '@/validate'
 import { z } from 'zod'
 import { LoadingSvg } from '../icons/Loading'
 import { UploadIcon } from '@radix-ui/react-icons'
+import { useAuth } from '@clerk/nextjs'
 
 type Props = {
     keyString: string
@@ -15,6 +16,9 @@ type Props = {
 const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
     const [fileUploading, setFileUploading] = React.useState(false)
     const [fileName, setFileName] = React.useState("")
+
+    const { getToken } = useAuth()
+
     const onFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return
         const file = e.target.files[0]
@@ -34,7 +38,9 @@ const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
 
         try {
             const resUploadUrl = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio/upload?filename=${file.name}`, {
-                credentials: "include",
+                headers: {
+                    'Authorization': 'Bearer ' + await getToken()
+                }
             })
             if (resUploadUrl.status !== 200) {
                 throw new Error("Could not get upload url")
@@ -60,8 +66,8 @@ const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
 
             const addAudioToDBRes = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio`, {
                 method: "POST",
-                credentials: "include",
                 headers: {
+                    'Authorization': 'Bearer ' + await getToken(),
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ key: uploadUrl.key, filename: file.name, size: file.size, mime: file.type })

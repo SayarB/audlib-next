@@ -1,4 +1,5 @@
 import { currentOrgResponseSchema } from "@/validate";
+import { useAuth } from "@clerk/nextjs";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 
@@ -12,10 +13,14 @@ export const useCurrentOrg = () => {
     getCurrentOrg();
   }, [setCurrentOrg]);
 
+  const { getToken } = useAuth();
+
   const getCurrentOrg = async () => {
     setLoading(true);
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orgs/current`, {
-      credentials: "include",
+      headers: {
+        Authorization: "Bearer " + (await getToken()),
+      },
     });
     if (!res.ok) return;
     const json = await res.json();

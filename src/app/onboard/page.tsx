@@ -1,45 +1,24 @@
 "use client"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import { registerSchema } from '@/validate'
-import { useRouter, useSearchParams } from 'next/navigation'
-import React, { Suspense, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { env } from '@/env/schema'
-import { Button } from '@/components/ui/button'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { LoadingSvg } from '@/components/icons/Loading'
+import { LoadingSvg } from '@/components/icons/Loading';
+import { Button } from '@/components/ui/button';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import React, { useState } from 'react';
+import loading from '../music/[id]/loading';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { registerSchema } from '@/validate';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { env } from '@/env/schema';
+import { useAuth, useOrganizationList } from '@clerk/nextjs';
 
-type Props = {}
+const OnboardPage = () => {
 
-const Register = (props: Props) => {
-
-    const queryToken = useSearchParams().get("token")
     const router = useRouter()
-    const [loading, setLoading] = useState(true)
-
-    const verifyToken = async () => {
-        const result = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/verify?token=${encodeURIComponent(queryToken ?? "")}`, {
-            credentials: 'include'
-        })
-
-        if (result.status === 200) {
-            router.replace("/")
-        } else if (result.status !== 201) {
-            router.replace("/login")
-        } else {
-            setLoading(false)
-        }
-    }
-
-    useEffect(() => {
-        if (!queryToken) {
-            router.replace("/login")
-        }
-        verifyToken()
-    }, [queryToken])
-
+    const { setActive } = useOrganizationList()
+    const [loading, setLoading] = useState(false)
+    const { getToken } = useAuth()
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -50,22 +29,29 @@ const Register = (props: Props) => {
     })
 
     const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        setLoading(true)
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/onboard`, {
             method: 'POST',
-            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + await getToken()
             },
             body: JSON.stringify(data)
         })
         if (res.status === 200) {
-            router.push("/")
+            const json = await res.json()
+            if (!setActive) {
+                console.log('setActive not found')
+                return
+            }
+            console.log("setting org to ", json.org_id)
+            await setActive({ organization: json.org_id })
+            return router.push('/')
         }
     }
-
     return (
-        <div className='w-[100%] h-[100%] flex items-center justify-center'>
-            {loading ? <div>Loading...</div> : <div className='w-[80vw] max-w-[500px] p-10 border border-input'>
+        <div>
+            <div className='w-[80vw] max-w-[500px] p-10 border border-input'>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
                         <FormField
@@ -116,10 +102,9 @@ const Register = (props: Props) => {
                     </form>
                 </Form>
                 {/* <p>Form</p> */}
-            </div>}
+            </div>
         </div>
+    );
+};
 
-    )
-}
-
-export default Register
+export default OnboardPage;

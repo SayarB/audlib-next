@@ -7,6 +7,7 @@ import { Form, FormField } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { env } from '@/env/schema'
 import { createProjectSchema, projectResponseSchema } from '@/validate'
+import { useAuth } from '@clerk/nextjs'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -26,6 +27,7 @@ const ProjectsPage = (props: Props) => {
     const [deleteProject, setDeleteProject] = useState({ id: "", name: "" })
     const [deleteProjectLoading, setDeleteProjectLoading] = useState(false)
     const router = useRouter()
+    const { getToken } = useAuth()
 
     const form = useForm<z.infer<typeof createProjectSchema>>({
         resolver: zodResolver(createProjectSchema),
@@ -43,7 +45,9 @@ const ProjectsPage = (props: Props) => {
 
     const getProjects = async () => {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects`, {
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
 
         const data = await res.json()
@@ -62,8 +66,8 @@ const ProjectsPage = (props: Props) => {
         setCreateProjectLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects`, {
             method: "POST",
-            credentials: "include",
             headers: {
+                'Authorization': 'Bearer ' + await getToken(),
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(data)
@@ -81,7 +85,9 @@ const ProjectsPage = (props: Props) => {
         setDeleteProjectLoading(true)
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects/${deleteProject.id}`, {
             method: "DELETE",
-            credentials: "include",
+            headers: {
+                'Authorization': 'Bearer ' + await getToken()
+            }
         })
         if (res.status !== 200) {
             console.log("Could not delete project")
