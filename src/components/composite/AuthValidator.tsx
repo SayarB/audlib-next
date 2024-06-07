@@ -11,8 +11,9 @@ const AuthValidator: React.FC<Props> = (props) => {
 
     const { isSignedIn, isLoaded } = useAuth();
     const router = useRouter()
+    const pathname = usePathname()
 
-
+    if (pathname === '/sign-in' || pathname === '/sign-up') return <>{props.children}</>
     if (!isLoaded) return <div>Loading...</div>
 
     if (!isSignedIn) {
