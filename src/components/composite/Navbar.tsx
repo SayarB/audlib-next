@@ -112,7 +112,7 @@ const Navbar = () => {
     return (
         <>
             <Button className={cn(`lg:hidden fixed top-[50%] -translate-y-[50%] h-[100px] p-1 z-30 ${!isLargeScreenSize && (!open ? "left-2" : "right-2")}`)} onClick={() => setOpen(o => !o)}>{!open ? <DoubleArrowRightIcon /> : <DoubleArrowLeftIcon />}</Button >
-            <div className={cn(`h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary ${!isLargeScreenSize && !open ? "hidden" : ""} flex flex-col justify-between`)}>
+            <div className={cn(`h-[100vh] fixed w-[100vw] md:relative md:w-[300px] z-10 bg-primary text-secondary flex flex-col justify-between ${(!isLargeScreenSize && !open) ? "hidden" : ""}`)}>
 
                 <div className="space-y-4 py-4 " >
                     <div className="px-3 py-2">
