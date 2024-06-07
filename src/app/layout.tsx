@@ -9,6 +9,7 @@ import Playback from "@/components/composite/Playback";
 import { PlaybackProvider } from "@/context/PlaybackContext";
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
+import AuthValidator from "@/components/composite/AuthValidator";
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata: Metadata = {
@@ -108,20 +109,23 @@ export default function RootLayout({
 
   return (
     <ClerkProvider>
+
       <html lang="en">
         <body className={inter.className}>
-          <PlaybackProvider value={state}>
-            <div className="min-w-[100vw] flex">
-              {isNavbarRoute && <Navbar />}
-              <div className="flex justify-center w-full">
-                <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
-                  {children}
+          <AuthValidator>
+            <PlaybackProvider value={state}>
+              <div className="min-w-[100vw] flex">
+                {isNavbarRoute && <Navbar />}
+                <div className="flex justify-center w-full">
+                  <div className="w-[100%] min-h-[100vh] lg:w-[80%] p-10">
+                    {children}
+                  </div>
                 </div>
               </div>
-            </div>
-            <Playback />
-          </PlaybackProvider>
-          <Toaster />
+              <Playback />
+            </PlaybackProvider>
+            <Toaster />
+          </AuthValidator>
         </body>
       </html>
     </ClerkProvider >

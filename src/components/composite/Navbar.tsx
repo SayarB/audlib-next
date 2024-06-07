@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { cn } from "@/lib/utils"
@@ -103,10 +104,10 @@ const Navbar = () => {
     }
 
     useEffect(() => {
-        if (orgs.length == 0) getOrgs()
         revalidate()
+        if (orgs.length == 0) getOrgs()
         if (!userInfo) getUserInfo()
-    }, [revalidate])
+    }, [pathname])
 
     return (
         <>

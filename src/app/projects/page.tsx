@@ -27,7 +27,7 @@ const ProjectsPage = (props: Props) => {
     const [deleteProject, setDeleteProject] = useState({ id: "", name: "" })
     const [deleteProjectLoading, setDeleteProjectLoading] = useState(false)
     const router = useRouter()
-    const { getToken } = useAuth()
+    const { getToken, isSignedIn } = useAuth()
 
     const form = useForm<z.infer<typeof createProjectSchema>>({
         resolver: zodResolver(createProjectSchema),
@@ -106,7 +106,7 @@ const ProjectsPage = (props: Props) => {
     useEffect(() => {
         console.log("projects page")
         getProjects()
-    }, [])
+    }, [isSignedIn])
 
 
     return (

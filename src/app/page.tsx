@@ -18,7 +18,6 @@ export default function Home() {
   const { isSignedIn, getToken } = useAuth()
   const getProjects = async () => {
 
-    console.log(organization)
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/projects?limit=3`, {
       headers: {
         'Authorization': `Bearer ${await getToken()}`
