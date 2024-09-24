@@ -179,6 +179,7 @@ export const createProjectSchema = z.object({
 export const createVersionSchema = z.object({
   title: z.string(),
   audioFileId: z.string(),
+  projectFileId: z.string(),
 });
 
 export const postAudioFileSchema = z.object({

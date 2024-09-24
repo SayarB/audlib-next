@@ -11,9 +11,11 @@ type Props = {
     keyString: string
     onError: (e: string) => void
     onFileUploadEnd: (data: z.infer<typeof postAudioFileSchema>) => void
+    type: "projectfile" | "audiofile"
+    label: string
 }
 
-const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
+const FileUpload = ({ keyString, onError, onFileUploadEnd, type, label }: Props) => {
     const [fileUploading, setFileUploading] = React.useState(false)
     const [fileName, setFileName] = React.useState("")
 
@@ -64,7 +66,7 @@ const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
                 throw new Error("Could not upload file")
             }
 
-            const addAudioToDBRes = await fetch(`${env.NEXT_PUBLIC_API_URL}/audio`, {
+            const addAudioToDBRes = await fetch(`${env.NEXT_PUBLIC_API_URL}/${type}`, {
                 method: "POST",
                 headers: {
                     'Authorization': 'Bearer ' + await getToken(),
@@ -92,10 +94,10 @@ const FileUpload = ({ keyString, onError, onFileUploadEnd }: Props) => {
     return (
         <div className='w-[300px] h-[50px]'>
             <label htmlFor={`file-upload-${keyString}`} className='w-[300px] h-[50px] cursor-pointer'>
-                <Input id={`file-upload-${keyString}`} placeholder="Audio File" className='w-[300px] hidden' type='file' onChange={onFileUpload} />
+                <Input id={`file-upload-${keyString}`} placeholder={label} className='w-[300px] hidden' type='file' onChange={onFileUpload} />
                 <div className='w-full h-full border text-center flex items-center justify-center'>
                     {!fileUploading ? <div>
-                        {fileName.length > 0 ? fileName : <div className='flex items-center'><p className='mr-2'>Upload</p><UploadIcon /></div>}
+                        {fileName.length > 0 ? fileName : <div className='flex items-center'><p className='mr-2'>Upload {label}</p><UploadIcon /></div>}
                     </div> :
                         <LoadingSvg />
                     }

@@ -59,7 +59,6 @@ export default function RootLayout({
   const fetchStreamToken = useCallback(async () => {
     setPlaybackLoading(true);
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/stream/${idPlaying}/token`, {
-      credentials: "include",
       method: "POST",
     });
 

@@ -213,12 +213,17 @@ const ProjectByID = (props: Props) => {
                                         <Input placeholder="Version Title" className='w-[300px] mb-2' {...field} />
                                     )} />
 
-                                <FileUpload keyString='1' onError={(e) => {
+                                <FileUpload label='Audio File' type='audiofile' keyString='1' onError={(e) => {
                                     form.setError("root", { message: e })
                                 }} onFileUploadEnd={(data) => {
                                     form.setValue("audioFileId", data.ID)
                                 }} />
-                                <Button variant='default' className='mt-2 w-full' type='submit' disabled={form.watch('audioFileId') === ""}>
+                                <FileUpload label='Project File' type='projectfile' keyString='2' onError={(e) => {
+                                    form.setError("root", { message: e })
+                                }} onFileUploadEnd={(data) => {
+                                    form.setValue("projectFileId", data.ID)
+                                }} />
+                                <Button variant='default' className='mt-2 w-full' type='submit' disabled={form.watch('audioFileId') === "" || form.watch('projectFileId') === ""}>
                                     {createVersionLoading ? <LoadingSvg /> : "Create Version"}
                                 </Button>
                             </form>
