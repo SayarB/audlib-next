@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { cn } from "@/lib/utils"
 import { Button } from '../ui/button'
 import { Avatar } from '../ui/avatar'
-import { AvatarImage } from '@radix-ui/react-avatar'
+import AvatarImage from 'boring-avatars'
 import Combobox from './Combobox'
 import { orgResponseSchema, userInfoSchema } from '@/validate'
 import { usePathname } from 'next/navigation'
@@ -121,7 +121,7 @@ const Navbar = () => {
                         <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 hover:bg-gray-400 cursor-pointer rounded-md'>
                             <div className='mr-2'>
                                 <Avatar>
-                                    <AvatarImage src={userInfo ? `https://source.boringavatars.com/marble/120/${userInfo?.DisplayName}?colors=264653,2a9d8f,e9c46a,f4a261,e76f51` : ""} alt="avatar" />
+                                    <AvatarImage colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} name={userInfo ? userInfo.DisplayName : ""} />
                                 </Avatar>
                             </div>
                             <div>
