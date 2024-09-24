@@ -121,7 +121,7 @@ const Navbar = () => {
                         <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 hover:bg-gray-400 cursor-pointer rounded-md'>
                             <div className='mr-2'>
                                 <Avatar>
-                                    <AvatarImage colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} name={userInfo ? userInfo.DisplayName : ""} />
+                                    {userInfo && <AvatarImage colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} name={userInfo.DisplayName} />}
                                 </Avatar>
                             </div>
                             <div>
