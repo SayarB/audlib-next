@@ -1,5 +1,5 @@
 import { currentOrgResponseSchema } from "@/validate";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useOrganizationList } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
@@ -11,6 +11,7 @@ export const useCurrentOrg = () => {
   > | null>(null);
   const pathname = usePathname();
   const { getToken, isSignedIn } = useAuth();
+  const { setActive } = useOrganizationList();
 
   const getCurrentOrg = async () => {
     if (!isSignedIn) return;
@@ -40,5 +41,15 @@ export const useCurrentOrg = () => {
     }
   }, [pathname, isSignedIn]);
 
-  return { currentOrg, revalidate, loading };
+  const updateOrg = useCallback(
+    async (id: string) => {
+      if (!setActive) return;
+      await setActive({
+        organization: id,
+      });
+    },
+    [setActive]
+  );
+
+  return { currentOrg, revalidate, loading, updateOrg };
 };

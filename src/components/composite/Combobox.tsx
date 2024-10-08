@@ -19,14 +19,21 @@ import {
 
 type Props = {
   current: string
-  values: { ID: string, Name: string }[]
+  values: { ID: string, ClerkId: string, Name: string }[]
   isFetching: boolean
+  onCreateNew: () => void
+  onSelect: (id: string) => Promise<void>
 }
 
-export function Combobox({ current, values }: Props) {
+export function Combobox({ current, values, onCreateNew, onSelect }: Props) {
 
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState(current)
+
+  const onClickCreate = () => {
+    setOpen(false)
+    onCreateNew()
+  }
 
   React.useEffect(() => {
     setValue(current)
@@ -58,6 +65,7 @@ export function Combobox({ current, values }: Props) {
                 value={element.ID}
                 onSelect={(currentValue: string) => {
                   setValue(currentValue)
+                  onSelect(element.ClerkId)
                   setOpen(false)
                 }}
               >
@@ -70,7 +78,10 @@ export function Combobox({ current, values }: Props) {
                 />
               </CommandItem>
             ))}
+
+            <Button className="w-full justify-start my-1" onClick={onClickCreate}>Create New Org</Button>
           </CommandGroup>
+
         </Command>
       </PopoverContent>
     </Popover>

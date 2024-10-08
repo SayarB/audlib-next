@@ -35,14 +35,13 @@ const ProjectByID = (props: Props) => {
 
     const router = useRouter()
     const [project, setProject] = useState<z.infer<typeof projectByIdResponseSchema> | null>(null)
-    const { playbackLoading, startStream, idPlaying, pause, playbackPlaying } = usePlayback()
+    const { playbackLoading, startStream, idPlaying, pause, playbackPlaying, closePlayer } = usePlayback()
     const [createVersionOpen, setCreateVersionOpen] = useState(false)
     const [createVersionLoading, setCreateVersionLoading] = useState(false)
     const [publishingId, setPublishingId] = useState("")
     const [deleteVersion, setDeleteVersion] = useState({ id: "", name: "" })
     const [deleteVersionLoading, setDeleteVersionLoading] = useState(false)
     const { width, height } = useWindowSize()
-
     const { getToken } = useAuth()
 
     const { toast } = useToast()
@@ -101,6 +100,9 @@ const ProjectByID = (props: Props) => {
 
     const onConfirmDelete = async () => {
         setDeleteVersionLoading(true)
+        if (idPlaying === deleteVersion.id) {
+            closePlayer()
+        }
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/version/${deleteVersion.id}`, {
             method: "DELETE",
             headers: {

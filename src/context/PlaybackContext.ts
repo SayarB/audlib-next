@@ -13,6 +13,7 @@ export type PlaybackContextType = {
   playbackLoading: boolean;
   setStreamId: (id: string) => void;
   startStream: (id: string) => void;
+  closePlayer: () => void;
 };
 
 export const PlaybackContext = createContext<PlaybackContextType>({
@@ -36,6 +37,9 @@ export const PlaybackContext = createContext<PlaybackContextType>({
     throw new Error("not yet initialized");
   },
   startStream: (id) => {
+    throw new Error("not yet initialized");
+  },
+  closePlayer: () => {
     throw new Error("not yet initialized");
   },
   idPlaying: "",

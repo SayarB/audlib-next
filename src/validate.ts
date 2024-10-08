@@ -53,6 +53,7 @@ export const orgResponseSchema = z.array(
       UpdatedAt: z.string(),
       DeletedAt: z.nullable(z.string()),
       ID: z.string(),
+      ClerkId: z.string(),
       Name: z.string(),
       Projects: z.nullable(z.unknown()),
       Users: z.nullable(z.unknown()),
@@ -254,4 +255,8 @@ export const registerSchema = z.object({
   name: z.string(),
   displayName: z.string(),
   orgName: z.string(),
+});
+
+export const createOrgSchema = z.object({
+  name: z.string(),
 });

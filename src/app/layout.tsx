@@ -102,8 +102,17 @@ export default function RootLayout({
     setIdPlaying(id)
   }, [idPlaying, streamToken])
 
+  const closePlayer = useCallback(() => {
+    setIdPlaying("")
+    if (!ref.current) return
+    ref.current.src = ""
+    ref.current.pause()
+    setStreamToken("")
+    reset()
+  }, [])
+
   const state = {
-    audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream
+    audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream, closePlayer
   }
 
   return (

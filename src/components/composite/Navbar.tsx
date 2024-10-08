@@ -14,6 +14,8 @@ import { DoubleArrowLeftIcon, DoubleArrowRightIcon } from '@radix-ui/react-icons
 import { env } from '@/env/schema'
 import { z } from 'zod'
 import { useAuth } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { usePlayback } from '@/hooks/usePlayback'
 
 
 const NavList = [
@@ -65,14 +67,28 @@ const NavList = [
 const Navbar = () => {
     const { width, height } = useWindowSize()
     const isLargeScreenSize = (width ?? 0) > 1000
-    const [orgs, setOrgs] = React.useState<{ ID: string, Name: string }[]>([])
+    const [orgs, setOrgs] = React.useState<{ ID: string, ClerkId: string, Name: string }[]>([])
     const [open, setOpen] = React.useState(!isLargeScreenSize)
-    const { currentOrg, revalidate, loading } = useCurrentOrg()
+    const { currentOrg, revalidate, loading, updateOrg } = useCurrentOrg()
     const [loadingOrgs, setLoadingOrgs] = React.useState(true)
     const [userInfo, setUserInfo] = React.useState<z.infer<typeof userInfoSchema> | null>(null)
     const pathname = usePathname()
+    const { closePlayer } = usePlayback()
     const { getToken, signOut } = useAuth()
     const isCurrent = (prefix: string) => prefix === "home" && pathname === "/" || pathname.startsWith(`/${prefix}`)
+    const router = useRouter()
+
+    const createNewOrganization = () => {
+        console.log("create new organization")
+        router.push("/org/create")
+    }
+    const changeOrg = async (id: string) => {
+        console.log("change org to ", id)
+        closePlayer()
+        await updateOrg(id)
+        window.location.href = "/"
+
+    }
 
     const getUserInfo = async () => {
         const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/auth/info`, {
@@ -97,7 +113,7 @@ const Navbar = () => {
         })
         if (!res.ok) return
         const json = await res.json()
-        const orgsArray = orgResponseSchema.parse(json).map((org) => ({ ID: org.Organization.ID, Name: org.Organization.Name }))
+        const orgsArray = orgResponseSchema.parse(json).map((org) => ({ ID: org.Organization.ID, ClerkId: org.Organization.ClerkId, Name: org.Organization.Name }))
         setOrgs(orgsArray)
         console.log(json)
         setLoadingOrgs(false)
@@ -116,7 +132,7 @@ const Navbar = () => {
 
                 <div className="space-y-4 py-4 " >
                     <div className="px-3 py-2">
-                        {loading || loadingOrgs ? "Loading" : <Combobox current={currentOrg?.ID || ""} values={orgs} isFetching={false} />}
+                        {loading || loadingOrgs ? "Loading" : <Combobox current={currentOrg?.ID || ""} onSelect={changeOrg} onCreateNew={createNewOrganization} values={orgs} isFetching={false} />}
 
                         <div className='px-3 py-2 mb-2 flex items-center bg-gray-500 hover:bg-gray-400 cursor-pointer rounded-md'>
                             <div className='mr-2'>
