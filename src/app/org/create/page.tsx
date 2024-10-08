@@ -10,10 +10,12 @@ import { env } from "@/env/schema"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useCurrentOrg } from "@/hooks/useOrg"
 
 const CreateOrganizationPage = () => {
 
     const { getToken } = useAuth()
+    const { updateOrg } = useCurrentOrg()
     const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof createOrgSchema>>({
         resolver: zodResolver(createOrgSchema),
@@ -34,6 +36,11 @@ const CreateOrganizationPage = () => {
             },
             body: JSON.stringify(data)
         })
+        if (res.status === 201) {
+            const data = await res.json()
+            await updateOrg(data.clerk_id)
+            window.location.href = "/"
+        }
         setLoading(false)
 
     }

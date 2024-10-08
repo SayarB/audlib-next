@@ -56,7 +56,6 @@ export function Combobox({ current, values, onCreateNew, onSelect }: Props) {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search Organization ..." className="h-9" />
           <CommandEmpty>No organizations found.</CommandEmpty>
           <CommandGroup>
             {values.map((element) => (

@@ -50,7 +50,7 @@ const OnboardPage = () => {
         }
     }
     return (
-        <div>
+        <div className='flex justify-center items-center'>
             <div className='w-[80vw] max-w-[500px] p-10 border border-input'>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-2'>
