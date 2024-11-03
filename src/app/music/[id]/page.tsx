@@ -9,10 +9,12 @@ type Props = {
 
 const MusicPlayer = async ({ params }: Props) => {
     const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}/token`, {
+        cache: "no-cache",
         credentials: "include",
         method: "POST",
     });
     const audio = (await res.json()) as { token: string }
+    console.log(audio.token)
 
     return (
         <div className='top-0 left-0 right-0 bottom-0 absolute flex items-center justify-center'>
