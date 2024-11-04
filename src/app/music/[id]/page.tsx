@@ -2,6 +2,8 @@ import AvatarImage from 'boring-avatars'
 import { env } from '@/env/schema'
 import React from 'react'
 import Player from '@/components/composite/MusicPlayer'
+import Link from 'next/link'
+import { ExternalLinkIcon } from '@radix-ui/react-icons'
 type Props = {
     params: {
         id: string
@@ -24,7 +26,7 @@ const MusicPlayerPage = async ({ params }: Props) => {
     const audio = (await resStream.json()) as { token: string }
     console.log(audio.token)
 
-    return (
+    return (<>
         <div className='top-0 left-0 right-0 bottom-0 absolute flex items-center justify-center' >
             <div className=' flex flex-col m-5 w-full md:w-[500px]'>
                 <Player className='mb-2 w-full' src={`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}?token=${audio.token}`} />
@@ -44,6 +46,8 @@ const MusicPlayerPage = async ({ params }: Props) => {
 
             </div>
         </div>
+        <div className='fixed bottom-20 left-0 right-0 flex justify-center'><Link href={'/'}><div className='flex items-center'>Checkout Audlib <ExternalLinkIcon className='ml-2' /> </div></Link></div>
+    </>
     )
 }
 
