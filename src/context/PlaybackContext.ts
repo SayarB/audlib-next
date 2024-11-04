@@ -46,5 +46,3 @@ export const PlaybackContext = createContext<PlaybackContextType>({
   playbackLoading: false,
   playbackPlaying: false,
 });
-
-export const PlaybackProvider = PlaybackContext.Provider;

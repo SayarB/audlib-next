@@ -1,12 +1,10 @@
 "use client"
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { env } from "@/env/schema";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Navbar from "@/components/composite/Navbar";
-import Playback from "@/components/composite/Playback";
-import { PlaybackProvider } from "@/context/PlaybackContext";
+import Playback from "@/components/composite/PopupPlayer";
+import PlaybackProvider from "@/context/PlaybackProvider";
 import { Toaster } from "@/components/ui/toaster";
 import { ClerkProvider } from "@clerk/nextjs";
 import AuthValidator from "@/components/composite/AuthValidator";
@@ -23,97 +21,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // const noAuthRequired = ["/sign-in", "/sign-up", "/music"]
-  const router = useRouter()
   const pathname = usePathname()
 
   const noNavbarPath = ["/login", "/org/select", "/login/verify", "/music", "/sign-in", "/sign-up", "/onboard"]
 
   const isNavbarRoute = noNavbarPath.findIndex(ele => pathname.startsWith(ele)) === -1
-  const ref = useRef<HTMLAudioElement | null>(null)
-  const [idPlaying, setIdPlaying] = useState<string>("");
-  const [streamToken, setStreamToken] = useState<string>("");
-  const [playbackLoading, setPlaybackLoading] = useState(false);
-  const [playbackPlaying, setPlaybackPlaying] = useState(false);
-  useEffect(() => {
-    if (window && !ref.current) {
-      ref.current = new Audio()
-    }
-  }, [])
 
-  useEffect(() => {
-    if (idPlaying !== "") {
-      fetchStreamToken()
-    }
-  }, [idPlaying])
-
-  useEffect(() => {
-    if (streamToken !== "") {
-      setupStream()
-    }
-  }, [streamToken])
-
-  const setStreamId = useCallback((id: string) => {
-    setIdPlaying(id)
-  }, [])
-
-  const fetchStreamToken = useCallback(async () => {
-    setPlaybackLoading(true);
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/stream/${idPlaying}/token`, {
-      method: "POST",
-    });
-
-    const data = await res.json();
-    const token = data.token;
-    setStreamToken(token);
-    setPlaybackLoading(false);
-  }, [idPlaying]);
-
-  const play = useCallback(() => {
-    if (!ref.current) return
-    if (ref.current.duration === 0) return
-    ref.current?.play()
-    setPlaybackPlaying(true)
-  }, [])
-
-  const pause = useCallback(() => {
-    console.log("pausing")
-    ref.current?.pause()
-    setPlaybackPlaying(false)
-  }, [])
-
-  const reset = useCallback(() => {
-    if (!ref.current) return
-    ref.current.currentTime = 0
-  }, [])
-
-  const setupStream = useCallback(() => {
-    if (!ref.current) {
-      return
-    }
-    ref.current.src = `${env.NEXT_PUBLIC_API_URL}/stream/${idPlaying}?token=${streamToken}`
-  }, [idPlaying, streamToken])
-
-  const startStream = useCallback((id: string) => {
-    reset()
-    if (idPlaying === id && streamToken !== "") {
-      play()
-      return
-    }
-    setIdPlaying(id)
-  }, [idPlaying, streamToken])
-
-  const closePlayer = useCallback(() => {
-    setIdPlaying("")
-    if (!ref.current) return
-    ref.current.src = ""
-    ref.current.pause()
-    setStreamToken("")
-    reset()
-  }, [])
-
-  const state = {
-    audioRef: ref, play, pause, reset, setupStream, fetchStreamToken, idPlaying, setStreamId, playbackLoading, playbackPlaying, startStream, closePlayer
-  }
 
   return (
     <ClerkProvider>
@@ -121,7 +34,7 @@ export default function RootLayout({
       <html lang="en">
         <body className={inter.className}>
           <AuthValidator>
-            <PlaybackProvider value={state}>
+            <PlaybackProvider>
               <div className="min-w-[100vw] flex">
                 {isNavbarRoute && <Navbar />}
                 <div className="flex justify-center w-full">

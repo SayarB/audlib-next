@@ -1,6 +1,7 @@
+import AvatarImage from 'boring-avatars'
 import { env } from '@/env/schema'
 import React from 'react'
-
+import Player from '@/components/composite/MusicPlayer'
 type Props = {
     params: {
         id: string
@@ -8,22 +9,39 @@ type Props = {
 }
 
 const MusicPlayer = async ({ params }: Props) => {
-    const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}/token`, {
+    const resVersionInfo = await fetch(`${env.NEXT_PUBLIC_API_URL}/public/version/${params.id}/info`, {
+        cache: "no-cache",
+        credentials: "include",
+        method: "GET",
+    })
+    const info = (await resVersionInfo.json()) as { VersionName: string, ProjectName: string, AuthorName: string }
+    console.log(info)
+    const resStream = await fetch(`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}/token`, {
         cache: "no-cache",
         credentials: "include",
         method: "POST",
     });
-    const audio = (await res.json()) as { token: string }
+    const audio = (await resStream.json()) as { token: string }
     console.log(audio.token)
 
     return (
-        <div className='top-0 left-0 right-0 bottom-0 absolute flex items-center justify-center'>
-            <div className='w-fit h-fit'>
-                <div className='max-w-[500px] min-w-[300px] max-h-[500px] min-h-[300px] w-[100%] h-[100%] shadow-md rounded-md overflow-hidden bg-cover bg-no-repeat mb-2' style={{
-                    backgroundImage: `url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1vZsKTRox4LLI8KnwPyjgo24WwaKuuSb_ZrsBpFjr1A&s)`,
-                }}>
+        <div className='top-0 left-0 right-0 bottom-0 absolute flex items-center justify-center' >
+            <div className=' flex flex-col'>
+                <Player className='mb-2 w-[500px]' src={`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}?token=${audio.token}`} />
+                <div className='metadata ml-12'>
+                    <div>
+                        <h1 className='text-xl font-bold'>{info.ProjectName} - {info.VersionName}</h1>
+                    </div>
+                    <div className='flex items-center'>
+                        <div className='w-[40px] h-[40px] mr-2'>
+                            <AvatarImage colors={['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51']} name={info.AuthorName} />
+                        </div>
+                        <div>
+                            <h2 className='text-lg font-semibold'>{info.AuthorName}</h2>
+                        </div>
+                    </div>
                 </div>
-                <audio src={`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}?token=${audio.token}`} controlsList='nodownload' controls autoPlay />
+
             </div>
         </div>
     )
