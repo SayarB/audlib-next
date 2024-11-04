@@ -8,7 +8,7 @@ type Props = {
     }
 }
 
-const MusicPlayer = async ({ params }: Props) => {
+const MusicPlayerPage = async ({ params }: Props) => {
     const resVersionInfo = await fetch(`${env.NEXT_PUBLIC_API_URL}/public/version/${params.id}/info`, {
         cache: "no-cache",
         credentials: "include",
@@ -26,8 +26,8 @@ const MusicPlayer = async ({ params }: Props) => {
 
     return (
         <div className='top-0 left-0 right-0 bottom-0 absolute flex items-center justify-center' >
-            <div className=' flex flex-col'>
-                <Player className='mb-2 w-[500px]' src={`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}?token=${audio.token}`} />
+            <div className=' flex flex-col m-5 w-full md:w-[500px]'>
+                <Player className='mb-2 w-full' src={`${env.NEXT_PUBLIC_API_URL}/stream/${params.id}?token=${audio.token}`} />
                 <div className='metadata ml-12'>
                     <div>
                         <h1 className='text-xl font-bold'>{info.ProjectName} - {info.VersionName}</h1>
@@ -47,4 +47,4 @@ const MusicPlayer = async ({ params }: Props) => {
     )
 }
 
-export default MusicPlayer
+export default MusicPlayerPage
