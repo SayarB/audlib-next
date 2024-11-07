@@ -66,6 +66,8 @@ const OrganizationListPage = () => {
             getOrganizations()
             setDeleteLoading(false)
             setDeletingOrg({ id: "", name: "" })
+            await revalidate()
+            window.location.reload()
         }
     }
 
